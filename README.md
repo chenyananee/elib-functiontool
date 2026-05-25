@@ -156,7 +156,8 @@ elib-functiontool/
 │   ├── elib_ft_endian.h            # 字节序转换
 │   └── elib_ft_bit.h              # 位操作
 ├── src/
-│   ├── elib_ft_core.c             # mem 实现
+│   ├── elib_ft_mem_core.c            # mem 实现
+│   ├── elib_ft_bitmap_core.c         # bitmap 实现
 │   ├── elib_ft_ringbuf_core.c     # ringbuf 实现
 │   ├── elib_ft_list_core.c        # list 实现
 │   ├── elib_ft_checksum_core.c    # checksum 实现
@@ -182,8 +183,8 @@ elib-functiontool/
 
 ```bash
 gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c \
-  src/elib_ft_core.c src/elib_ft_ringbuf_core.c src/elib_ft_list_core.c \
-  src/elib_ft_checksum_core.c src/elib_ft_str_core.c \
+  src/elib_ft_mem_core.c src/elib_ft_bitmap_core.c src/elib_ft_ringbuf_core.c \
+  src/elib_ft_list_core.c src/elib_ft_checksum_core.c src/elib_ft_str_core.c \
   src/elib_ft_endian_core.c src/elib_ft_bit_core.c && ./test_elib_ft
 ```
 
