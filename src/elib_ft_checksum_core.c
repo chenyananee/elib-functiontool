@@ -210,3 +210,29 @@ uint32_t elib_ft_crc32(const uint8_t *data, uint32_t len, uint32_t poly, uint32_
     elib_ft_crc32_update(&ctx, data, len);
     return elib_ft_crc32_final(&ctx);
 }
+
+/* ------------------------------------------------------------------ */
+/*  FNV-1a Hash                                                        */
+/* ------------------------------------------------------------------ */
+
+uint32_t elib_ft_hash_fnv1a32(const uint8_t *data, uint32_t len)
+{
+    /* FNV-1a 32-bit: offset_basis=2166136261, prime=16777619 */
+    uint32_t hash = 2166136261u;
+    for (uint32_t i = 0; i < len; i++) {
+        hash ^= data[i];
+        hash *= 16777619u;
+    }
+    return hash;
+}
+
+uint64_t elib_ft_hash_fnv1a64(const uint8_t *data, uint32_t len)
+{
+    /* FNV-1a 64-bit: offset_basis=14695981039346656037, prime=1099511628211 */
+    uint64_t hash = 14695981039346656037ULL;
+    for (uint32_t i = 0; i < len; i++) {
+        hash ^= (uint64_t)data[i];
+        hash *= 1099511628211ULL;
+    }
+    return hash;
+}

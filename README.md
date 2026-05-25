@@ -97,6 +97,8 @@
 | `elib_ft_crc32_init/update/final` | CRC32（多帧） |
 | `elib_ft_crc32(data, len, poly, init, ref)` | CRC32（单次） |
 | `ELIB_FT_CRC32_ETHERNET_INIT(ctx)` | CRC32-Ethernet 快捷初始化 |
+| `elib_ft_hash_fnv1a32(data, len)` | FNV-1a 32 位哈希 |
+| `elib_ft_hash_fnv1a64(data, len)` | FNV-1a 64 位哈希 |
 
 ### str — 字符串操作
 
@@ -110,6 +112,7 @@
 | `elib_ft_atof(s, max_len, endptr)` | 浮点数解析（支持正负小数） |
 | `elib_ft_strarg_count(s, max_len)` | 空格分隔参数表计数 |
 | `elib_ft_strarg_get(s, max_len, idx, endptr)` | 获取指定索引参数的指针 |
+| `elib_ft_strcmp_fast(s1, s2, max_len)` | 快速字符串比较（FNV-1a 哈希预检） |
 
 ### endian — 字节序转换
 

@@ -83,6 +83,26 @@ uint32_t elib_ft_crc32(const uint8_t *data, uint32_t len, uint32_t poly, uint32_
 
 #define ELIB_FT_CRC32_ETHERNET_INIT(ctx) elib_ft_crc32_init(ctx, 0xEDB88320u, 0xFFFFFFFFu, 0xFFFFFFFFu, 1)
 
+/* ------------------------------------------------------------------ */
+/*  FNV-1a Hash                                                         */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Compute FNV-1a 32-bit hash of a data block
+ * @param data Input data
+ * @param len  Data length in bytes
+ * @return FNV-1a 32-bit hash (offset_basis=2166136261, prime=16777619)
+ */
+uint32_t elib_ft_hash_fnv1a32(const uint8_t *data, uint32_t len);
+
+/**
+ * @brief Compute FNV-1a 64-bit hash of a data block
+ * @param data Input data
+ * @param len  Data length in bytes
+ * @return FNV-1a 64-bit hash (offset_basis=14695981039346656037, prime=1099511628211)
+ */
+uint64_t elib_ft_hash_fnv1a64(const uint8_t *data, uint32_t len);
+
 #ifdef __cplusplus
 }
 #endif

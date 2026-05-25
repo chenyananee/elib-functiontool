@@ -1113,6 +1113,32 @@ static void test_crc32_msb_first(void)
     assert(elib_ft_crc32_final(&ctx) == 0xCBF43926u);
 }
 
+static void test_fnv1a32_basic(void)
+{
+    /* FNV-1a test vector: empty string */
+    assert(elib_ft_hash_fnv1a32((const uint8_t *)"", 0) == 2166136261u);
+    /* "hello" */
+    assert(elib_ft_hash_fnv1a32((const uint8_t *)"hello", 5) == 0xF9DDEC5Fu);
+}
+
+static void test_fnv1a32_null(void)
+{
+    assert(elib_ft_hash_fnv1a32(NULL, 0) == 2166136261u);
+    assert(elib_ft_hash_fnv1a32(NULL, 10) == 2166136261u);
+}
+
+static void test_fnv1a64_basic(void)
+{
+    assert(elib_ft_hash_fnv1a64((const uint8_t *)"", 0) == 14695981039346656037ULL);
+    /* "hello" */
+    assert(elib_ft_hash_fnv1a64((const uint8_t *)"hello", 5) == 0xA9B44F1F6C77E781u);
+}
+
+static void test_fnv1a64_null(void)
+{
+    assert(elib_ft_hash_fnv1a64(NULL, 0) == 14695981039346656037ULL);
+}
+
 /* ------------------------------------------------------------------ */
 /*  elib_ft_str tests                                                   */
 /* ------------------------------------------------------------------ */
@@ -1414,6 +1440,55 @@ static void test_strarg_get_null_endptr(void)
     assert(elib_ft_strarg_get("hello world", 11, 0, NULL) != NULL);
 }
 
+static void test_strcmp_fast_equal(void)
+{
+    assert(elib_ft_strcmp_fast("hello", "hello", 10) == 0);
+}
+
+static void test_strcmp_fast_less(void)
+{
+    assert(elib_ft_strcmp_fast("abc", "abd", 10) < 0);
+}
+
+static void test_strcmp_fast_greater(void)
+{
+    assert(elib_ft_strcmp_fast("abd", "abc", 10) > 0);
+}
+
+static void test_strcmp_fast_len_diff(void)
+{
+    /* length differs, hash alone resolves without memcmp */
+    assert(elib_ft_strcmp_fast("abc", "abcd", 10) < 0);
+    assert(elib_ft_strcmp_fast("abcd", "abc", 10) > 0);
+}
+
+static void test_strcmp_fast_null_s1(void)
+{
+    assert(elib_ft_strcmp_fast(NULL, "abc", 10) < 0);
+}
+
+static void test_strcmp_fast_null_s2(void)
+{
+    assert(elib_ft_strcmp_fast("abc", NULL, 10) > 0);
+}
+
+static void test_strcmp_fast_both_null(void)
+{
+    assert(elib_ft_strcmp_fast(NULL, NULL, 10) == 0);
+}
+
+static void test_strcmp_fast_max_len(void)
+{
+    /* "hello" vs "hello123" within max_len=5, equal */
+    assert(elib_ft_strcmp_fast("hello123", "hello456", 5) == 0);
+}
+
+static void test_strcmp_fast_max_len_diff(void)
+{
+    assert(elib_ft_strcmp_fast("abcde", "abfgh", 3) == 0);
+    assert(elib_ft_strcmp_fast("abcde", "abfgh", 2) == 0);
+}
+
 /* ------------------------------------------------------------------ */
 /*  elib_ft_endian tests                                               */
 /* ------------------------------------------------------------------ */
@@ -1568,6 +1643,10 @@ int main(void)
     RUN_TEST(test_crc32_oneshot);
     RUN_TEST(test_crc32_null);
     RUN_TEST(test_crc32_msb_first);
+    RUN_TEST(test_fnv1a32_basic);
+    RUN_TEST(test_fnv1a32_null);
+    RUN_TEST(test_fnv1a64_basic);
+    RUN_TEST(test_fnv1a64_null);
 
     /* str tests */
     printf("\n");
@@ -1619,6 +1698,15 @@ int main(void)
     RUN_TEST(test_strarg_get_last);
     RUN_TEST(test_strarg_get_null);
     RUN_TEST(test_strarg_get_null_endptr);
+    RUN_TEST(test_strcmp_fast_equal);
+    RUN_TEST(test_strcmp_fast_less);
+    RUN_TEST(test_strcmp_fast_greater);
+    RUN_TEST(test_strcmp_fast_len_diff);
+    RUN_TEST(test_strcmp_fast_null_s1);
+    RUN_TEST(test_strcmp_fast_null_s2);
+    RUN_TEST(test_strcmp_fast_both_null);
+    RUN_TEST(test_strcmp_fast_max_len);
+    RUN_TEST(test_strcmp_fast_max_len_diff);
 
     /* endian tests */
     printf("\n");
@@ -1650,6 +1738,6 @@ int main(void)
     RUN_TEST(test_find_next_clear_out_of_range);
     RUN_TEST(test_find_next_clear_null);
 
-    printf("\nAll %d tests passed.\n", 98 + 50);
+    printf("\nAll %d tests passed.\n", 98 + 63);
     return 0;
 }

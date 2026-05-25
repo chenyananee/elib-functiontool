@@ -5,6 +5,7 @@
 
 #include <stdint.h>
 #include <stddef.h>
+#include "elib_ft_checksum.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,6 +97,28 @@ uint32_t elib_ft_strarg_count(const char *s, uint32_t max_len);
  * @return Pointer to token start, or NULL if not found / NULL input
  */
 const char *elib_ft_strarg_get(const char *s, uint32_t max_len, uint32_t index, const char **endptr);
+
+/* ------------------------------------------------------------------ */
+/*  Fast string compare (hash-based)                                    */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Quick string compare using FNV-1a hash pre-check
+ * @param s1 First string
+ * @param s2 Second string
+ * @param max_len Maximum characters to compare
+ * @return 0 if equal, <0 if s1 < s2, >0 if s1 > s2
+ *
+ * Algorithm:
+ *   - If lengths differ -> immediately return comparison result
+ *   - Compute FNV-1a hash of both strings
+ *   - If hashes differ  -> return difference (fast O(n) skip)
+ *   - If hashes equal   -> fallback to memcmp for confirmation
+ *
+ * Benefits: O(n) worst case, often O(n/8) when strings differ early.
+ *          No dynamic allocation, no NULL pointer dereference.
+ */
+int elib_ft_strcmp_fast(const char *s1, const char *s2, uint32_t max_len);
 
 #ifdef __cplusplus
 }

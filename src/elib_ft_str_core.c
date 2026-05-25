@@ -1,4 +1,5 @@
 /* elib_ft_str_core.c - FunctionTool String Operations */
+/* elib_ft_checksum.h included via elib_ft_str.h */
 
 #include "elib_ft_str.h"
 #include <string.h>
@@ -236,4 +237,42 @@ const char *elib_ft_strarg_get(const char *s, uint32_t max_len, uint32_t index, 
         *endptr = NULL;
     }
     return NULL;
+}
+
+/* ------------------------------------------------------------------ */
+/*  Fast string compare (hash-based)                                    */
+/* ------------------------------------------------------------------ */
+
+int elib_ft_strcmp_fast(const char *s1, const char *s2, uint32_t max_len)
+{
+    if (s1 == NULL || s2 == NULL) {
+        if (s1 == NULL && s2 == NULL) {
+            return 0;
+        }
+        return (s1 == NULL) ? -1 : 1;
+    }
+    if (s1 == s2) {
+        return 0;
+    }
+
+    /* find actual length within max_len */
+    uint32_t len1 = strnlen(s1, max_len);
+    uint32_t len2 = strnlen(s2, max_len);
+
+    /* length difference -> determine sign */
+    if (len1 != len2) {
+        return (len1 < len2) ? -1 : 1;
+    }
+
+    /* same length: compute FNV-1a hash */
+    uint32_t h1 = elib_ft_hash_fnv1a32((const uint8_t *)s1, len1);
+    uint32_t h2 = elib_ft_hash_fnv1a32((const uint8_t *)s2, len2);
+
+    if (h1 != h2) {
+        return (h1 < h2) ? -1 : 1;
+    }
+
+    /* hash collision possible (rare) -> confirm with memcmp */
+    int cmp = memcmp(s1, s2, (size_t)len1);
+    return cmp;
 }
