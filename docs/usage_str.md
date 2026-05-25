@@ -51,6 +51,30 @@ v = elib_ft_atof("42", 10, &end);               /* 42.0 */
 v = elib_ft_atof("3.14159", 4, &end);           /* 3.1，超长截断 */
 ```
 
+## strarg — 空格分隔参数表解析
+
+空格（`' '`）作为分隔符，支持连续空格（前导、尾部、多重均正确处理）。
+
+```c
+/* "cmd arg1 arg2 arg3" -> count=3 */
+uint32_t n = elib_ft_strarg_count("cmd arg1 arg2", 14);  /* 3 */
+
+/* 获取索引 0 的参数指针 */
+const char *tok = elib_ft_strarg_get("cmd arg1 arg2", 14, 0, &end);
+/* tok="cmd", *end=' ' */
+
+/* 获取索引 2 */
+tok = elib_ft_strarg_get("cmd arg1 arg2", 14, 2, &end);
+/* tok="arg2" */
+
+/* 越界返回 NULL */
+tok = elib_ft_strarg_get("cmd arg1 arg2", 14, 5, &end);  /* NULL */
+
+/* NULL 安全 */
+elib_ft_strarg_count(NULL, 10);  /* 0 */
+elib_ft_strarg_get(NULL, 10, 0, &end);  /* NULL */
+```
+
 ## 注意事项
 
 - 所有函数均对 `NULL` 参数做安全处理

@@ -75,6 +75,28 @@ uint32_t elib_ft_atou32(const char *s, uint32_t max_len, const char **endptr);
  */
 double elib_ft_atof(const char *s, uint32_t max_len, const char **endptr);
 
+/* ------------------------------------------------------------------ */
+/*  String argument table (space-separated)                            */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Count space-separated tokens in a string
+ * @param s String pointer
+ * @param max_len Maximum characters to scan
+ * @return Token count (0 on NULL, empty, or spaces-only input)
+ */
+uint32_t elib_ft_strarg_count(const char *s, uint32_t max_len);
+
+/**
+ * @brief Get pointer to token at given index
+ * @param s String pointer
+ * @param max_len Maximum characters to scan
+ * @param index Zero-based token index
+ * @param endptr Output pointer for first character after token (can be NULL)
+ * @return Pointer to token start, or NULL if not found / NULL input
+ */
+const char *elib_ft_strarg_get(const char *s, uint32_t max_len, uint32_t index, const char **endptr);
+
 #ifdef __cplusplus
 }
 #endif

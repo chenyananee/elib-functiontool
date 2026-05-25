@@ -108,6 +108,8 @@
 | `elib_ft_atoi32(s, max_len, endptr)` | 有符号整数解析，支持正负号 |
 | `elib_ft_atou32(s, max_len, endptr)` | 无符号整数解析 |
 | `elib_ft_atof(s, max_len, endptr)` | 浮点数解析（支持正负小数） |
+| `elib_ft_strarg_count(s, max_len)` | 空格分隔参数表计数 |
+| `elib_ft_strarg_get(s, max_len, idx, endptr)` | 获取指定索引参数的指针 |
 
 ### endian — 字节序转换
 

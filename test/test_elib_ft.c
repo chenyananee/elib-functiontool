@@ -1332,6 +1332,88 @@ static void test_atof_null(void)
     assert(end == NULL);
 }
 
+static void test_strarg_count_normal(void)
+{
+    assert(elib_ft_strarg_count("hello world foo", 15) == 3);
+}
+
+static void test_strarg_count_single(void)
+{
+    assert(elib_ft_strarg_count("hello", 5) == 1);
+}
+
+static void test_strarg_count_leading_spaces(void)
+{
+    assert(elib_ft_strarg_count("  hello world", 13) == 2);
+}
+
+static void test_strarg_count_trailing_spaces(void)
+{
+    assert(elib_ft_strarg_count("hello world  ", 13) == 2);
+}
+
+static void test_strarg_count_multi_spaces(void)
+{
+    assert(elib_ft_strarg_count("hello   world   foo", 17) == 3);
+}
+
+static void test_strarg_count_empty(void)
+{
+    assert(elib_ft_strarg_count("", 0) == 0);
+    assert(elib_ft_strarg_count("   ", 3) == 0);
+}
+
+static void test_strarg_count_null(void)
+{
+    assert(elib_ft_strarg_count(NULL, 10) == 0);
+}
+
+static void test_strarg_get_normal(void)
+{
+    const char *end;
+    const char *tok = elib_ft_strarg_get("hello world foo", 15, 0, &end);
+    assert(tok != NULL);
+    assert(strncmp(tok, "hello", 5) == 0);
+    assert(*end == ' ');
+
+    tok = elib_ft_strarg_get("hello world foo", 15, 1, &end);
+    assert(tok != NULL);
+    assert(strncmp(tok, "world", 5) == 0);
+    assert(*end == ' ');
+
+    tok = elib_ft_strarg_get("hello world foo", 15, 2, &end);
+    assert(tok != NULL);
+    assert(strncmp(tok, "foo", 3) == 0);
+    assert(*end == '\0' || end == NULL);
+}
+
+static void test_strarg_get_out_of_range(void)
+{
+    const char *end;
+    assert(elib_ft_strarg_get("hello world", 11, 5, &end) == NULL);
+    assert(end == NULL);
+}
+
+static void test_strarg_get_last(void)
+{
+    const char *end;
+    const char *tok = elib_ft_strarg_get("hello world foo", 15, 2, &end);
+    assert(tok != NULL);
+    assert(strncmp(tok, "foo", 3) == 0);
+}
+
+static void test_strarg_get_null(void)
+{
+    const char *end;
+    assert(elib_ft_strarg_get(NULL, 10, 0, &end) == NULL);
+    assert(end == NULL);
+}
+
+static void test_strarg_get_null_endptr(void)
+{
+    assert(elib_ft_strarg_get("hello world", 11, 0, NULL) != NULL);
+}
+
 /* ------------------------------------------------------------------ */
 /*  elib_ft_endian tests                                               */
 /* ------------------------------------------------------------------ */
@@ -1525,6 +1607,18 @@ int main(void)
     RUN_TEST(test_atof_integer);
     RUN_TEST(test_atof_with_limit);
     RUN_TEST(test_atof_null);
+    RUN_TEST(test_strarg_count_normal);
+    RUN_TEST(test_strarg_count_single);
+    RUN_TEST(test_strarg_count_leading_spaces);
+    RUN_TEST(test_strarg_count_trailing_spaces);
+    RUN_TEST(test_strarg_count_multi_spaces);
+    RUN_TEST(test_strarg_count_empty);
+    RUN_TEST(test_strarg_count_null);
+    RUN_TEST(test_strarg_get_normal);
+    RUN_TEST(test_strarg_get_out_of_range);
+    RUN_TEST(test_strarg_get_last);
+    RUN_TEST(test_strarg_get_null);
+    RUN_TEST(test_strarg_get_null_endptr);
 
     /* endian tests */
     printf("\n");
@@ -1556,6 +1650,6 @@ int main(void)
     RUN_TEST(test_find_next_clear_out_of_range);
     RUN_TEST(test_find_next_clear_null);
 
-    printf("\nAll %d tests passed.\n", 98 + 37);
+    printf("\nAll %d tests passed.\n", 98 + 50);
     return 0;
 }

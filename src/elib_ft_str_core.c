@@ -167,3 +167,73 @@ double elib_ft_atof(const char *s, uint32_t max_len, const char **endptr)
     }
     return val;
 }
+
+/* ------------------------------------------------------------------ */
+/*  String argument table (space-separated)                             */
+/* ------------------------------------------------------------------ */
+
+/* skip leading spaces, return index of first non-space char within [0, max_len) */
+static uint32_t skip_spaces_buf(const char *s, uint32_t max_len)
+{
+    uint32_t i = 0;
+    while (i < max_len && s[i] == ' ') {
+        i++;
+    }
+    return i;
+}
+
+uint32_t elib_ft_strarg_count(const char *s, uint32_t max_len)
+{
+    if (s == NULL || max_len == 0) {
+        return 0;
+    }
+    uint32_t count = 0;
+    uint32_t i = skip_spaces_buf(s, max_len);
+    while (i < max_len && s[i] != '\0') {
+        count++;
+        /* skip token */
+        while (i < max_len && s[i] != '\0' && s[i] != ' ') {
+            i++;
+        }
+        /* skip trailing spaces */
+        i = skip_spaces_buf(s + i, max_len - i) + i;
+    }
+    return count;
+}
+
+const char *elib_ft_strarg_get(const char *s, uint32_t max_len, uint32_t index, const char **endptr)
+{
+    if (s == NULL || max_len == 0) {
+        if (endptr != NULL) {
+            *endptr = NULL;
+        }
+        return NULL;
+    }
+    uint32_t i = skip_spaces_buf(s, max_len);
+    while (i < max_len && s[i] != '\0') {
+        if (index == 0) {
+            const char *tok = &s[i];
+            uint32_t j = i;
+            while (j < max_len && s[j] != '\0' && s[j] != ' ') {
+                j++;
+            }
+            if (endptr != NULL) {
+                if (j < max_len && s[j] != '\0') {
+                    *endptr = &s[j];
+                } else {
+                    *endptr = NULL;
+                }
+            }
+            return tok;
+        }
+        index--;
+        while (i < max_len && s[i] != '\0' && s[i] != ' ') {
+            i++;
+        }
+        i = skip_spaces_buf(s + i, max_len - i) + i;
+    }
+    if (endptr != NULL) {
+        *endptr = NULL;
+    }
+    return NULL;
+}
