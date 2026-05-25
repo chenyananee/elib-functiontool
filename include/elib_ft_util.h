@@ -15,12 +15,19 @@ extern "C" {
 
 #if defined(__ICCARM__)
     #define ELIB_FT_WEAK __weak
+    #define ELIB_FT_UNUSED __attribute__((unused))
 #elif defined(__CC_ARM)
     #define ELIB_FT_WEAK __weak
+    #define ELIB_FT_UNUSED __attribute__((unused))
 #elif defined(__GNUC__)
     #define ELIB_FT_WEAK __attribute__((weak))
+    #define ELIB_FT_UNUSED __attribute__((unused))
+#elif defined(_MSC_VER)
+    #define ELIB_FT_WEAK
+    #define ELIB_FT_UNUSED __pragma(warning(suppress:4100))
 #else
     #define ELIB_FT_WEAK
+    #define ELIB_FT_UNUSED
 #endif
 
 /* ------------------------------------------------------------------ */
