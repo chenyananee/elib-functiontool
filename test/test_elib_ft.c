@@ -1146,35 +1146,35 @@ static void test_fnv1a64_null(void)
 static void test_time_to_epoch_basic(void)
 {
     elib_ft_time_t t = {2000, 1, 1, 0, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_OK);
     /* 2000-01-01 00:00:00 UTC = 946684800 */
-    assert(epoch == 946684800ULL);
+    assert(epoch == 946684800U);
 }
 
 static void test_time_to_epoch_leap_year(void)
 {
     elib_ft_time_t t = {2000, 2, 29, 12, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_OK);
     /* 2000-02-29 12:00:00 UTC */
-    assert(epoch == 951868800ULL);
+    assert(epoch == 951868800U);
 }
 
 static void test_time_to_epoch_invalid_year(void)
 {
     elib_ft_time_t t = {1969, 1, 1, 0, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
 
-    t.year = 2100;
+    t.year = 2039;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
 }
 
 static void test_time_to_epoch_invalid_month(void)
 {
     elib_ft_time_t t = {2000, 0, 1, 0, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
 
     t.month = 13;
@@ -1184,21 +1184,21 @@ static void test_time_to_epoch_invalid_month(void)
 static void test_time_to_epoch_invalid_day(void)
 {
     elib_ft_time_t t = {2000, 2, 30, 0, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
 }
 
 static void test_time_to_epoch_invalid_time(void)
 {
     elib_ft_time_t t = {2000, 1, 1, 24, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
 }
 
 static void test_time_to_epoch_null(void)
 {
     elib_ft_time_t t = {2000, 1, 1, 0, 0, 0};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(NULL, &epoch) == ELIB_FT_ERR_INVALID_PARAM);
     assert(elib_ft_time_to_epoch(&t, NULL) == ELIB_FT_ERR_INVALID_PARAM);
 }
@@ -1206,7 +1206,7 @@ static void test_time_to_epoch_null(void)
 static void test_epoch_to_time_basic(void)
 {
     elib_ft_time_t t;
-    assert(elib_ft_epoch_to_time(946684800ULL, &t) == ELIB_FT_OK);
+    assert(elib_ft_epoch_to_time(946684800U, &t) == ELIB_FT_OK);
     assert(t.year == 2000);
     assert(t.month == 1);
     assert(t.day == 1);
@@ -1218,7 +1218,7 @@ static void test_epoch_to_time_basic(void)
 static void test_epoch_to_time_leap(void)
 {
     elib_ft_time_t t;
-    assert(elib_ft_epoch_to_time(951868800ULL, &t) == ELIB_FT_OK);
+    assert(elib_ft_epoch_to_time(951868800U, &t) == ELIB_FT_OK);
     assert(t.year == 2000);
     assert(t.month == 2);
     assert(t.day == 29);
@@ -1228,7 +1228,7 @@ static void test_epoch_to_time_leap(void)
 static void test_epoch_to_time_roundtrip(void)
 {
     elib_ft_time_t t_in = {2025, 6, 15, 8, 30, 45};
-    uint64_t epoch = 0;
+    uint32_t epoch = 0;
     assert(elib_ft_time_to_epoch(&t_in, &epoch) == ELIB_FT_OK);
 
     elib_ft_time_t t_out;
@@ -1249,9 +1249,9 @@ static void test_epoch_to_time_null(void)
 static void test_time_wday(void)
 {
     /* 2000-01-01 is Saturday (wday=6) */
-    assert(elib_ft_time_wday(946684800ULL) == 6);
+    assert(elib_ft_time_wday(946684800U) == 6);
     /* 2000-01-02 is Sunday (wday=0) */
-    assert(elib_ft_time_wday(946771200ULL) == 0);
+    assert(elib_ft_time_wday(946771200U) == 0);
 }
 
 static void test_time_wday_epoch0(void)

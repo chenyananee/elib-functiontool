@@ -24,7 +24,7 @@
 | checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32/FNV-1a 校验算法 |
 | str | `elib_ft_str.h` | 字符串操作 |
 | endian | `elib_ft_endian.h` | 字节序转换 |
-| time | `elib_ft_time.h` | 日历时间与世纪秒转换 |
+| time | `elib_ft_time.h` | 日历时间与世纪秒转换（32位，1970-2038） |
 | err | `elib_ft_err.h` | 统一错误码 |
 | 兼容宏 | `elib_ft.h` | `ELIB_FT_WEAK` / `ELIB_FT_ARRAY_SIZE` 等 |
 
@@ -128,6 +128,8 @@
 | `elib_ft_ntoh32(val)` | 网络序转主机序（32 位） |
 
 ### time — 日历时间与世纪秒转换
+
+> 纯 32 位实现，适用于 8051 等 8/16/32 位平台。年份范围 1970-2038，epoch 使用 `uint32_t`。
 
 | 函数 | 说明 |
 |------|------|
