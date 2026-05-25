@@ -4,6 +4,7 @@
 #define ELIB_FT_LIST_H
 
 #include <stdint.h>
+#include "elib_ft_util.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -31,7 +32,7 @@ typedef struct {
  * @return Pointer to the containing struct
  */
 #define ELIB_FT_LIST_ENTRY(node, type, member) \
-    ((type *)((char *)(node) - (char *)(&((type *)0)->member)))
+    ELIB_FT_CONTAINER_OF(node, type, member)
 
 /**
  * @brief Iterate over a list

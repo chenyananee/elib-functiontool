@@ -42,12 +42,42 @@ int v = ELIB_FT_MAP(0, 0, 100, 1000, 0);    /* v = 1000 */
 double v = ELIB_FT_MAP_F(2048, 0, 4095, 0.0, 3.3);  /* v ≈ 1.65 */
 ```
 
+## BIT — 位掩码
+
+```c
+uint32_t mask = ELIB_FT_BIT(3);     /* mask = 0x08 */
+uint32_t flags = ELIB_FT_BIT(0) | ELIB_FT_BIT(7);  /* flags = 0x81 */
+
+/* 寄存器操作 */
+REG |= ELIB_FT_BIT(5);    /* 置位第 5 位 */
+REG &= ~ELIB_FT_BIT(5);   /* 清除第 5 位 */
+```
+
+## CONTAINER_OF — 从成员获取宿主结构体
+
+```c
+struct sensor {
+    int id;
+    elib_ft_list_node_t node;
+    float value;
+};
+
+elib_ft_list_node_t *cur;
+ELIB_FT_LIST_FOR_EACH(cur, &sensor_list) {
+    struct sensor *s = ELIB_FT_CONTAINER_OF(cur, struct sensor, node);
+    printf("sensor %d = %.1f\n", s->id, s->value);
+}
+```
+
+> `ELIB_FT_LIST_ENTRY` 等价于 `ELIB_FT_CONTAINER_OF`，可直接使用后者。
+
 ## 其他宏
 
 | 宏 | 说明 |
 |----|------|
 | `ELIB_FT_ARRAY_SIZE(arr)` | 计算数组元素个数 |
 | `ELIB_FT_WEAK` | 编译器弱符号修饰（ICCARM/CC_ARM/GNUC 自适应） |
+| `ELIB_FT_UNUSED` | 编译器未使用参数抑制 |
 
 ## 注意事项
 

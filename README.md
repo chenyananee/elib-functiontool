@@ -58,8 +58,11 @@
 | `ELIB_FT_CLAMP(val, lo, hi)` | 限幅至 [lo, hi] |
 | `ELIB_FT_MAP(val, in_lo, in_hi, out_lo, out_hi)` | 整数线性映射（四舍五入） |
 | `ELIB_FT_MAP_F(val, in_lo, in_hi, out_lo, out_hi)` | 浮点线性映射 |
+| `ELIB_FT_BIT(n)` | 单位掩码（1U << n） |
+| `ELIB_FT_CONTAINER_OF(ptr, type, member)` | 从成员指针获取宿主结构体 |
 | `ELIB_FT_ARRAY_SIZE(arr)` | 计算数组元素个数 |
 | `ELIB_FT_WEAK` | 编译器弱符号修饰 |
+| `ELIB_FT_UNUSED` | 编译器未使用抑制 |
 
 ### ringbuf — 环形缓冲区
 

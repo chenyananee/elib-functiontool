@@ -42,6 +42,27 @@ extern "C" {
 #define ELIB_FT_ARRAY_SIZE(arr) ((uint32_t)(sizeof(arr) / sizeof((arr)[0])))
 
 /* ------------------------------------------------------------------ */
+/*  BIT mask                                                            */
+/* ------------------------------------------------------------------ */
+
+/** @brief Generate a single-bit mask at position n */
+#define ELIB_FT_BIT(n) (1U << (n))
+
+/* ------------------------------------------------------------------ */
+/*  CONTAINER_OF                                                        */
+/* ------------------------------------------------------------------ */
+
+/**
+ * @brief Get containing struct from a member pointer
+ * @param ptr    Pointer to the member
+ * @param type   Name of the containing struct
+ * @param member Name of the member within the struct
+ * @return Pointer to the containing struct
+ */
+#define ELIB_FT_CONTAINER_OF(ptr, type, member) \
+    ((type *)((char *)(ptr) - (char *)(&((type *)0)->member)))
+
+/* ------------------------------------------------------------------ */
 /*  MIN / MAX                                                           */
 /* ------------------------------------------------------------------ */
 
