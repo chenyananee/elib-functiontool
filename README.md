@@ -12,7 +12,6 @@
 | checksum | [docs/usage_checksum.md](docs/usage_checksum.md) |
 | str | [docs/usage_str.md](docs/usage_str.md) |
 | endian | [docs/usage_endian.md](docs/usage_endian.md) |
-| bit | [docs/usage_bit.md](docs/usage_bit.md) |
 
 ## 模块列表
 
@@ -24,7 +23,6 @@
 | checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32 校验算法 |
 | str | `elib_ft_str.h` | 字符串操作 |
 | endian | `elib_ft_endian.h` | 字节序转换 |
-| bit | `elib_ft_bit.h` | 位操作（popcount/find_next） |
 | err | `elib_ft_err.h` | 统一错误码 |
 | 兼容宏 | `elib_ft.h` | `ELIB_FT_WEAK` / `ELIB_FT_ARRAY_SIZE` 等 |
 
@@ -120,16 +118,6 @@
 | `elib_ft_hton32(val)` | 主机序转网络序（32 位） |
 | `elib_ft_ntoh32(val)` | 网络序转主机序（32 位） |
 
-### bit — 位操作
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_popcount8(x)` | 统计 8 位值中 1 的个数（0-8） |
-| `elib_ft_popcount16(x)` | 统计 16 位值中 1 的个数（0-16） |
-| `elib_ft_popcount32(x)` | 统计 32 位值中 1 的个数（0-32） |
-| `elib_ft_bit_find_next_set(buf, max_bits, start)` | 查找下一个 1 位位置 |
-| `elib_ft_bit_find_next_clear(buf, max_bits, start)` | 查找下一个 0 位位置 |
-
 ### 错误码
 
 | 错误码 | 说明 |
@@ -154,7 +142,7 @@ elib-functiontool/
 │   ├── elib_ft_checksum.h         # 校验算法
 │   ├── elib_ft_str.h              # 字符串操作
 │   ├── elib_ft_endian.h            # 字节序转换
-│   └── elib_ft_bit.h              # 位操作
+│   └── elib_ft_err.h               # 错误码
 ├── src/
 │   ├── elib_ft_mem_core.c            # mem 实现
 │   ├── elib_ft_bitmap_core.c         # bitmap 实现
@@ -163,7 +151,6 @@ elib-functiontool/
 │   ├── elib_ft_checksum_core.c    # checksum 实现
 │   ├── elib_ft_str_core.c         # str 实现
 │   ├── elib_ft_endian_core.c       # endian 实现
-│   └── elib_ft_bit_core.c         # bit 实现
 ├── test/
 │   └── test_elib_ft.c             # 单元测试
 ├── docs/
@@ -173,7 +160,6 @@ elib-functiontool/
 │   ├── usage_checksum.md         # checksum 用法
 │   ├── usage_str.md              # str 用法
 │   ├── usage_endian.md           # endian 用法
-│   └── usage_bit.md              # bit 用法
 ├── scripts/
 ├── LICENSE
 └── README.md
@@ -185,7 +171,7 @@ elib-functiontool/
 gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c \
   src/elib_ft_mem_core.c src/elib_ft_bitmap_core.c src/elib_ft_ringbuf_core.c \
   src/elib_ft_list_core.c src/elib_ft_checksum_core.c src/elib_ft_str_core.c \
-  src/elib_ft_endian_core.c src/elib_ft_bit_core.c && ./test_elib_ft
+  src/elib_ft_endian_core.c && ./test_elib_ft
 ```
 
 ## 许可证

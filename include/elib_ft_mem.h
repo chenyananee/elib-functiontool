@@ -4,6 +4,7 @@
 #define ELIB_FT_MEM_H
 
 #include <stdint.h>
+#include "elib_ft_err.h"
 
 #ifdef __cplusplus
 extern "C" {
