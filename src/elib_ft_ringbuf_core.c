@@ -14,7 +14,7 @@ elib_ft_err_t elib_ft_ringbuf_init(elib_ft_ringbuf_ctx_t *ctx, uint8_t *buf, uin
     ctx->cell_size = cell_size;
     ctx->head = 0;
     ctx->tail = 0;
-    ctx->initialized = 1;
+    ctx->bit_flags.initialized = 1;
 
     return ELIB_FT_OK;
 }
@@ -24,7 +24,7 @@ void elib_ft_ringbuf_deinit(elib_ft_ringbuf_ctx_t *ctx)
     if (ctx == NULL) {
         return;
     }
-    ctx->initialized = 0;
+    ctx->bit_flags.initialized = 0;
 }
 
 static uint32_t ringbuf_used(const elib_ft_ringbuf_ctx_t *ctx)
@@ -37,7 +37,7 @@ static uint32_t ringbuf_used(const elib_ft_ringbuf_ctx_t *ctx)
 
 uint32_t elib_ft_ringbuf_used(elib_ft_ringbuf_ctx_t *ctx)
 {
-    if (ctx == NULL || !ctx->initialized) {
+    if (ctx == NULL || !ctx->bit_flags.initialized) {
         return 0;
     }
     return ringbuf_used(ctx);
@@ -45,7 +45,7 @@ uint32_t elib_ft_ringbuf_used(elib_ft_ringbuf_ctx_t *ctx)
 
 uint32_t elib_ft_ringbuf_free(elib_ft_ringbuf_ctx_t *ctx)
 {
-    if (ctx == NULL || !ctx->initialized) {
+    if (ctx == NULL || !ctx->bit_flags.initialized) {
         return 0;
     }
     return ctx->size - 1 - ringbuf_used(ctx);
@@ -56,7 +56,7 @@ elib_ft_err_t elib_ft_ringbuf_write(elib_ft_ringbuf_ctx_t *ctx, const void *data
     if (ctx == NULL || data == NULL) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-    if (!ctx->initialized) {
+    if (!ctx->bit_flags.initialized) {
         return ELIB_FT_ERR_NOT_INITIALIZED;
     }
     if (len > max_len) {
@@ -82,7 +82,7 @@ elib_ft_err_t elib_ft_ringbuf_read(elib_ft_ringbuf_ctx_t *ctx, void *data, uint3
     if (ctx == NULL || data == NULL) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-    if (!ctx->initialized) {
+    if (!ctx->bit_flags.initialized) {
         return ELIB_FT_ERR_NOT_INITIALIZED;
     }
     if (len > max_len) {
@@ -105,7 +105,7 @@ elib_ft_err_t elib_ft_ringbuf_read(elib_ft_ringbuf_ctx_t *ctx, void *data, uint3
 
 void elib_ft_ringbuf_reset(elib_ft_ringbuf_ctx_t *ctx)
 {
-    if (ctx == NULL || !ctx->initialized) {
+    if (ctx == NULL || !ctx->bit_flags.initialized) {
         return;
     }
     ctx->head = 0;

@@ -17,7 +17,9 @@ typedef struct {
     uint32_t  cell_size;  /* size of each cell in bytes */
     uint32_t  head;       /* write index */
     uint32_t  tail;       /* read index */
-    int       initialized;
+    struct {
+        uint8_t initialized : 1;
+    } bit_flags;
 } elib_ft_ringbuf_ctx_t;
 
 /**

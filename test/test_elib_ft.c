@@ -208,7 +208,7 @@ static void test_memset_single_byte(void)
 static void test_ringbuf_init_valid(void)
 {
     assert(elib_ft_ringbuf_init(&rb_ctx, rb_buf, RB_SIZE, RB_CELL_SIZE) == ELIB_FT_OK);
-    assert(rb_ctx.initialized == 1);
+    assert(rb_ctx.bit_flags.initialized == 1);
     assert(rb_ctx.head == 0);
     assert(rb_ctx.tail == 0);
     assert(rb_ctx.buf == rb_buf);
@@ -232,7 +232,7 @@ static void test_ringbuf_deinit(void)
 {
     elib_ft_ringbuf_init(&rb_ctx, rb_buf, RB_SIZE, RB_CELL_SIZE);
     elib_ft_ringbuf_deinit(&rb_ctx);
-    assert(rb_ctx.initialized == 0);
+    assert(rb_ctx.bit_flags.initialized == 0);
 
     /* deinit NULL is safe */
     elib_ft_ringbuf_deinit(NULL);
