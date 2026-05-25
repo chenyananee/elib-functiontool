@@ -26,5 +26,8 @@
 #include "elib_ft_ringbuf.h"
 #include "elib_ft_list.h"
 #include "elib_ft_checksum.h"
+#include "elib_ft_str.h"
+#include "elib_ft_endian.h"
+#include "elib_ft_bit.h"
 
 #endif /* ELIB_FT_H */

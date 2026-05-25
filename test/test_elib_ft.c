@@ -1114,6 +1114,330 @@ static void test_crc32_msb_first(void)
 }
 
 /* ------------------------------------------------------------------ */
+/*  elib_ft_str tests                                                   */
+/* ------------------------------------------------------------------ */
+
+static void test_strlen_normal(void)
+{
+    assert(elib_ft_strlen("hello", 10) == 5);
+}
+
+static void test_strlen_with_limit(void)
+{
+    assert(elib_ft_strlen("hello", 3) == 3);
+}
+
+static void test_strlen_null(void)
+{
+    assert(elib_ft_strlen(NULL, 10) == 0);
+}
+
+static void test_strlen_empty(void)
+{
+    assert(elib_ft_strlen("", 10) == 0);
+}
+
+static void test_strcmp_equal(void)
+{
+    assert(elib_ft_strcmp("hello", "hello") == 0);
+}
+
+static void test_strcmp_less(void)
+{
+    assert(elib_ft_strcmp("abc", "abd") < 0);
+}
+
+static void test_strcmp_greater(void)
+{
+    assert(elib_ft_strcmp("abd", "abc") > 0);
+}
+
+static void test_strcmp_null_s1(void)
+{
+    assert(elib_ft_strcmp(NULL, "abc") < 0);
+}
+
+static void test_strcmp_null_s2(void)
+{
+    assert(elib_ft_strcmp("abc", NULL) > 0);
+}
+
+static void test_strcmp_both_null(void)
+{
+    assert(elib_ft_strcmp(NULL, NULL) == 0);
+}
+
+static void test_strncmp_equal(void)
+{
+    assert(elib_ft_strncmp("hello", "hello", 5) == 0);
+}
+
+static void test_strncmp_prefix(void)
+{
+    assert(elib_ft_strncmp("hello", "helloworld", 5) == 0);
+}
+
+static void test_strncmp_less(void)
+{
+    assert(elib_ft_strncmp("abc", "abd", 3) < 0);
+}
+
+static void test_strncmp_greater(void)
+{
+    assert(elib_ft_strncmp("abd", "abc", 3) > 0);
+}
+
+static void test_strncmp_zero_n(void)
+{
+    assert(elib_ft_strncmp("abc", "xyz", 0) == 0);
+}
+
+static void test_strncmp_null_s1(void)
+{
+    assert(elib_ft_strncmp(NULL, "abc", 3) < 0);
+}
+
+static void test_strncmp_null_s2(void)
+{
+    assert(elib_ft_strncmp("abc", NULL, 3) > 0);
+}
+
+static void test_strncmp_null_both(void)
+{
+    assert(elib_ft_strncmp(NULL, NULL, 3) == 0);
+}
+
+static void test_strncmp_null_n(void)
+{
+    assert(elib_ft_strncmp("abc", "abc", 0) == 0);
+}
+
+static void test_atoi_normal(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("12345", 10, &end) == 12345);
+    assert(*end == '\0');
+}
+
+static void test_atoi_with_limit(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("12345", 3, &end) == 12);
+    assert(*end == '3');
+}
+
+static void test_atoi_multiframe(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("123", 10, &end) == 123);
+    assert(*end == '\0');
+}
+
+static void test_atoi_zero(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("0", 10, &end) == 0);
+    assert(*end == '\0');
+}
+
+static void test_atoi_leading_spaces(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("  42abc", 10, &end) == 42);
+    assert(*end == 'a');
+}
+
+static void test_atoi_invalid(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("abc", 10, &end) == 0);
+}
+
+static void test_atoi_null(void)
+{
+    const char *end;
+    assert(elib_ft_atoi(NULL, 10, &end) == 0);
+    assert(end == NULL);
+}
+
+static void test_atoi_null_endptr(void)
+{
+    assert(elib_ft_atoi("123", 10, NULL) == 123);
+}
+
+static void test_atoi_empty(void)
+{
+    const char *end;
+    assert(elib_ft_atoi("", 10, &end) == 0);
+}
+
+static void test_atoi_overflow(void)
+{
+    const char *end;
+    /* 4000000000 > 2^32-1 */
+    assert(elib_ft_atoi("4000000000", 10, &end) == 4000000000U);
+}
+
+/* ------------------------------------------------------------------ */
+/*  elib_ft_endian tests                                               */
+/* ------------------------------------------------------------------ */
+
+static void test_swap16(void)
+{
+    assert(elib_ft_swap16(0x1234) == 0x3412);
+    assert(elib_ft_swap16(0x00FF) == 0xFF00);
+    assert(elib_ft_swap16(0xABCD) == 0xCDAB);
+}
+
+static void test_swap32(void)
+{
+    assert(elib_ft_swap32(0x12345678) == 0x78563412);
+    assert(elib_ft_swap32(0x11223344) == 0x44332211);
+    assert(elib_ft_swap32(0xAABBCCDD) == 0xDDCCBBAABB);
+}
+
+static void test_swap32_zero(void)
+{
+    assert(elib_ft_swap32(0) == 0);
+}
+
+static void test_swap32_pattern(void)
+{
+    /* 0x01020304 -> 0x04030201 */
+    assert(elib_ft_swap32(0x01020304) == 0x04030201);
+}
+
+/* ------------------------------------------------------------------ */
+/*  elib_ft_bit tests                                                  */
+/* ------------------------------------------------------------------ */
+
+static void test_popcount8_all_set(void)
+{
+    assert(elib_ft_popcount8(0xFF) == 8);
+}
+
+static void test_popcount8_none_set(void)
+{
+    assert(elib_ft_popcount8(0x00) == 0);
+}
+
+static void test_popcount8_mixed(void)
+{
+    assert(elib_ft_popcount8(0x55) == 4);
+    assert(elib_ft_popcount8(0x0F) == 4);
+    assert(elib_ft_popcount8(0xAA) == 4);
+    assert(elib_ft_popcount8(0xF0) == 4);
+    assert(elib_ft_popcount8(0x03) == 2);
+    assert(elib_ft_popcount8(0xC0) == 2);
+}
+
+static void test_popcount16_all_set(void)
+{
+    assert(elib_ft_popcount16(0xFFFF) == 16);
+}
+
+static void test_popcount16_mixed(void)
+{
+    assert(elib_ft_popcount16(0x5555) == 8);
+    assert(elib_ft_popcount16(0x00FF) == 8);
+}
+
+static void test_popcount32_all_set(void)
+{
+    assert(elib_ft_popcount32(0xFFFFFFFF) == 32);
+}
+
+static void test_popcount32_mixed(void)
+{
+    assert(elib_ft_popcount32(0x55555555) == 16);
+    assert(elib_ft_popcount32(0x00FF00FF) == 16);
+    assert(elib_ft_popcount32(0xAAAAAAAA) == 16);
+}
+
+static void test_find_next_set_basic(void)
+{
+    uint8_t buf[1] = {0x24}; /* 0b00100100 */
+    assert(elib_ft_bit_find_next_set(buf, 8, 0) == 2);
+    assert(elib_ft_bit_find_next_set(buf, 8, 3) == 5);
+    assert(elib_ft_bit_find_next_set(buf, 8, 6) == 8);
+}
+
+static void test_find_next_set_none(void)
+{
+    uint8_t buf[1] = {0x00};
+    assert(elib_ft_bit_find_next_set(buf, 8, 0) == 8);
+}
+
+static void test_find_next_set_all(void)
+{
+    uint8_t buf[1] = {0xFF};
+    assert(elib_ft_bit_find_next_set(buf, 8, 0) == 0);
+    assert(elib_ft_bit_find_next_set(buf, 8, 7) == 7);
+}
+
+static void test_find_next_set_cross_byte(void)
+{
+    uint8_t buf[2] = {0x00, 0x02};
+    assert(elib_ft_bit_find_next_set(buf, 16, 0) == 9);
+}
+
+static void test_find_next_set_out_of_range(void)
+{
+    uint8_t buf[1] = {0xFF};
+    assert(elib_ft_bit_find_next_set(buf, 8, 8) == 8);
+}
+
+static void test_find_next_set_null(void)
+{
+    assert(elib_ft_bit_find_next_set(NULL, 8, 0) == 8);
+}
+
+static void test_find_next_set_non_byte_aligned(void)
+{
+    uint8_t buf[2] = {0x00, 0x02};
+    assert(elib_ft_bit_find_next_set(buf, 10, 0) == 9);
+    assert(elib_ft_bit_find_next_set(buf, 10, 10) == 10);
+}
+
+static void test_find_next_clear_basic(void)
+{
+    uint8_t buf[1] = {0xDB}; /* 0b11011011 */
+    assert(elib_ft_bit_find_next_clear(buf, 8, 0) == 2);
+    assert(elib_ft_bit_find_next_clear(buf, 8, 3) == 5);
+    assert(elib_ft_bit_find_next_clear(buf, 8, 6) == 8);
+}
+
+static void test_find_next_clear_none(void)
+{
+    uint8_t buf[1] = {0xFF};
+    assert(elib_ft_bit_find_next_clear(buf, 8, 0) == 8);
+}
+
+static void test_find_next_clear_all(void)
+{
+    uint8_t buf[1] = {0x00};
+    assert(elib_ft_bit_find_next_clear(buf, 8, 0) == 0);
+    assert(elib_ft_bit_find_next_clear(buf, 8, 7) == 7);
+}
+
+static void test_find_next_clear_cross_byte(void)
+{
+    uint8_t buf[2] = {0xFF, 0xFB};
+    assert(elib_ft_bit_find_next_clear(buf, 16, 0) == 10);
+}
+
+static void test_find_next_clear_out_of_range(void)
+{
+    uint8_t buf[1] = {0xFF};
+    assert(elib_ft_bit_find_next_clear(buf, 8, 8) == 8);
+}
+
+static void test_find_next_clear_null(void)
+{
+    assert(elib_ft_bit_find_next_clear(NULL, 8, 0) == 8);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -1239,6 +1563,68 @@ int main(void)
     RUN_TEST(test_crc32_null);
     RUN_TEST(test_crc32_msb_first);
 
-    printf("\nAll 98 tests passed.\n");
+    /* str tests */
+    printf("\n");
+    RUN_TEST(test_strlen_normal);
+    RUN_TEST(test_strlen_with_limit);
+    RUN_TEST(test_strlen_null);
+    RUN_TEST(test_strlen_empty);
+    RUN_TEST(test_strcmp_equal);
+    RUN_TEST(test_strcmp_less);
+    RUN_TEST(test_strcmp_greater);
+    RUN_TEST(test_strcmp_null_s1);
+    RUN_TEST(test_strcmp_null_s2);
+    RUN_TEST(test_strcmp_both_null);
+    RUN_TEST(test_strncmp_equal);
+    RUN_TEST(test_strncmp_prefix);
+    RUN_TEST(test_strncmp_less);
+    RUN_TEST(test_strncmp_greater);
+    RUN_TEST(test_strncmp_zero_n);
+    RUN_TEST(test_strncmp_null_s1);
+    RUN_TEST(test_strncmp_null_s2);
+    RUN_TEST(test_strncmp_null_both);
+    RUN_TEST(test_strncmp_null_n);
+    RUN_TEST(test_atoi_normal);
+    RUN_TEST(test_atoi_with_limit);
+    RUN_TEST(test_atoi_multiframe);
+    RUN_TEST(test_atoi_zero);
+    RUN_TEST(test_atoi_leading_spaces);
+    RUN_TEST(test_atoi_invalid);
+    RUN_TEST(test_atoi_null);
+    RUN_TEST(test_atoi_null_endptr);
+    RUN_TEST(test_atoi_empty);
+    RUN_TEST(test_atoi_overflow);
+
+    /* endian tests */
+    printf("\n");
+    RUN_TEST(test_swap16);
+    RUN_TEST(test_swap32);
+    RUN_TEST(test_swap32_zero);
+    RUN_TEST(test_swap32_pattern);
+
+    /* bit tests */
+    printf("\n");
+    RUN_TEST(test_popcount8_all_set);
+    RUN_TEST(test_popcount8_none_set);
+    RUN_TEST(test_popcount8_mixed);
+    RUN_TEST(test_popcount16_all_set);
+    RUN_TEST(test_popcount16_mixed);
+    RUN_TEST(test_popcount32_all_set);
+    RUN_TEST(test_popcount32_mixed);
+    RUN_TEST(test_find_next_set_basic);
+    RUN_TEST(test_find_next_set_none);
+    RUN_TEST(test_find_next_set_all);
+    RUN_TEST(test_find_next_set_cross_byte);
+    RUN_TEST(test_find_next_set_out_of_range);
+    RUN_TEST(test_find_next_set_null);
+    RUN_TEST(test_find_next_set_non_byte_aligned);
+    RUN_TEST(test_find_next_clear_basic);
+    RUN_TEST(test_find_next_clear_none);
+    RUN_TEST(test_find_next_clear_all);
+    RUN_TEST(test_find_next_clear_cross_byte);
+    RUN_TEST(test_find_next_clear_out_of_range);
+    RUN_TEST(test_find_next_clear_null);
+
+    printf("\nAll %d tests passed.\n", 98 + 46);
     return 0;
 }
