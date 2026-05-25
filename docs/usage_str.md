@@ -75,6 +75,27 @@ elib_ft_strarg_count(NULL, 10);  /* 0 */
 elib_ft_strarg_get(NULL, 10, 0, &end);  /* NULL */
 ```
 
+### 结合 atoi / atof 解析参数值
+
+`endptr` 返回 token 结束位置，配合数值解析函数使用：
+
+```c
+/* "port 8080" -> 获取并解析端口号 */
+const char *end;
+const char *tok = elib_ft_strarg_get("port 8080", 10, 1, &end);
+uint32_t port = elib_ft_atou32(tok, (uint32_t)(end - tok), NULL);  /* 8080 */
+
+/* "temp -12.5" -> 解析负浮点数 */
+tok = elib_ft_strarg_get("temp -12.5", 10, 1, &end);
+double temp = elib_ft_atof(tok, (uint32_t)(end - tok), NULL);  /* -12.5 */
+
+/* "rate +42" -> 解析有符号整数 */
+tok = elib_ft_strarg_get("rate +42 end", 12, 1, &end);
+int32_t rate = elib_ft_atoi32(tok, (uint32_t)(end - tok), NULL);  /* 42 */
+```
+
+`endptr` 可传 `NULL`，如不关心 token 边界。
+
 ## 注意事项
 
 - 所有函数均对 `NULL` 参数做安全处理
