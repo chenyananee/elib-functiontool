@@ -1,17 +1,14 @@
 /* elib_ft_str_core.c - FunctionTool String Operations */
 
 #include "elib_ft_str.h"
+#include <string.h>
 
 uint32_t elib_ft_strlen(const char *s, uint32_t max_len)
 {
-    uint32_t len = 0;
     if (s == NULL) {
         return 0;
     }
-    while (len < max_len && s[len] != '\0') {
-        len++;
-    }
-    return len;
+    return strnlen(s, max_len);
 }
 
 int elib_ft_strcmp(const char *s1, const char *s2)
@@ -22,14 +19,7 @@ int elib_ft_strcmp(const char *s1, const char *s2)
         }
         return (s1 == NULL) ? -1 : 1;
     }
-    while (*s1 != '\0' && *s2 != '\0') {
-        if (*s1 != *s2) {
-            return (unsigned char)*s1 - (unsigned char)*s2;
-        }
-        s1++;
-        s2++;
-    }
-    return (unsigned char)*s1 - (unsigned char)*s2;
+    return strcmp(s1, s2);
 }
 
 int elib_ft_strncmp(const char *s1, const char *s2, uint32_t n)
@@ -43,19 +33,10 @@ int elib_ft_strncmp(const char *s1, const char *s2, uint32_t n)
         }
         return (s1 == NULL) ? -1 : 1;
     }
-    uint32_t i = 0;
-    while (i < n && s1[i] != '\0' && s2[i] != '\0') {
-        if (s1[i] != s2[i]) {
-            return (unsigned char)s1[i] - (unsigned char)s2[i];
-        }
-        i++;
-    }
-    if (i == n) {
-        return 0;
-    }
-    return (unsigned char)s1[i] - (unsigned char)s2[i];
+    return strncmp(s1, s2, (size_t)n);
 }
 
+/* atoi: no direct standard equivalent (strtoul lacks max_len), keep custom */
 uint32_t elib_ft_atoi(const char *s, uint32_t max_len, const char **endptr)
 {
     uint32_t val = 0;
