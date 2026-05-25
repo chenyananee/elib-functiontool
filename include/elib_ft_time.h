@@ -28,19 +28,15 @@ extern "C" {
     #define ELIB_FT_EPOCH_T uint64_t
 #endif
 
-/**
- * @internal
- * @def ELIB_FT_TIME_I64
- * @brief Internal arithmetic type (always int64_t).
- *
- * User code should not use this type directly.
- *
- * Year range is limited to ~5883516 because: year * 365 must fit in
- * int32_t (max 2147483647 / 365 ≈ 5883516). This limit applies
- * regardless of ELIB_FT_EPOCH_T width.
- */
-#ifndef ELIB_FT_TIME_I64
-    #define ELIB_FT_TIME_I64 int64_t
+/* Auto-derive signed type for internal arithmetic.
+ * Year range limited to ~5883516: year * 365 must fit in signed type
+ * (int32_t max 2147483647 / 365 ≈ 5883516, regardless of EPOCH_T width). */
+#if UINT32_MAX == (ELIB_FT_EPOCH_T)-1
+    typedef int32_t  elib_ft_epoch_signed_t;
+#elif UINT64_MAX == (ELIB_FT_EPOCH_T)-1
+    typedef int64_t  elib_ft_epoch_signed_t;
+#else
+    #error "ELIB_FT_EPOCH_T must be uint32_t or uint64_t"
 #endif
 
 /* ------------------------------------------------------------------ */

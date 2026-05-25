@@ -1,23 +1,23 @@
 /* elib_ft_time_core.c - FunctionTool Time and Calendar Implementation */
-/* ELIB_FT_EPOCH_T controls output type, ELIB_FT_TIME_I64 for internal arithmetic (see elib_ft_time.h). */
+/* ELIB_FT_EPOCH_T controls output type, elib_ft_epoch_signed_t for internal arithmetic. */
 
 #include "elib_ft_time.h"
 #include "../include/elib_ft_err.h"
 
-#define i64 ELIB_FT_TIME_I64
+typedef elib_ft_epoch_signed_t ies; /* internal epoch signed type */
 
 /* ------------------------------------------------------------------ */
 /*  Internal helpers                                                    */
 /* ------------------------------------------------------------------ */
 
-static i64 is_leap_year(i64 year)
+static ies is_leap_year(ies year)
 {
     return ((year & 3) == 0) && (((year % 100) != 0) || ((year % 400) == 0));
 }
 
-static i64 days_in_month(i64 year, i64 month)
+static ies days_in_month(ies year, ies month)
 {
-    static const i64 dim[12] = {
+    static const ies dim[12] = {
         31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
     };
     if (month == 2 && is_leap_year(year)) return 29;
@@ -25,12 +25,12 @@ static i64 days_in_month(i64 year, i64 month)
 }
 
 /* days from 1970-01-01 to the civil date */
-static i64 days_from_epoch(i64 year, i64 month, i64 day)
+static ies days_from_epoch(ies year, ies month, ies day)
 {
-    i64 y = year - 1;
-    i64 days = y * 365 + y / 4 - y / 100 + y / 400;
+    ies y = year - 1;
+    ies days = y * 365 + y / 4 - y / 100 + y / 400;
 
-    for (i64 m = 1; m < month; m++) {
+    for (ies m = 1; m < month; m++) {
         days += days_in_month(year, m);
     }
     days += day - 1;
@@ -38,16 +38,16 @@ static i64 days_from_epoch(i64 year, i64 month, i64 day)
 }
 
 /* civil date from days since 1970-01-01 */
-static void civil_from_days(i64 days, i64 *year, i64 *month, i64 *day)
+static void civil_from_days(ies days, ies *year, ies *month, ies *day)
 {
-    i64 z = days + 719468;
-    i64 era = z / 146097;
+    ies z = days + 719468;
+    ies era = z / 146097;
     if (z < 0) era -= 1;
-    i64 doe = z - era * 146097;
-    i64 yoe = (doe - doe / 1460 - doe / 36524 + doe / 146096) / 365;
-    i64 y = yoe + era * 400;
-    i64 doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
-    i64 mp = (5 * doy + 2) / 153;
+    ies doe = z - era * 146097;
+    ies yoe = (doe - doe / 1460 - doe / 36524 + doe / 146096) / 365;
+    ies y = yoe + era * 400;
+    ies doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
+    ies mp = (5 * doy + 2) / 153;
     *day = doy - (mp * 153 + 2) / 5 + 1;
     *month = mp + (mp < 10 ? 3 : -9);
     *year = y + (mp >= 10 ? 1 : 0);
@@ -75,7 +75,7 @@ int elib_ft_time_to_epoch(const elib_ft_time_t *t, ELIB_FT_EPOCH_T *epoch)
         return ELIB_FT_ERR_INVALID_PARAM;
     }
 
-    i64 d = days_from_epoch(t->year, t->month, t->day);
+    ies d = days_from_epoch(t->year, t->month, t->day);
     *epoch = (ELIB_FT_EPOCH_T)(d * 86400) + (ELIB_FT_EPOCH_T)(t->hour * 3600u + t->minute * 60u + t->second);
     return ELIB_FT_OK;
 }
@@ -86,10 +86,10 @@ int elib_ft_epoch_to_time(ELIB_FT_EPOCH_T epoch, elib_ft_time_t *t)
         return ELIB_FT_ERR_INVALID_PARAM;
     }
 
-    i64 days = (i64)(epoch / 86400);
+    ies days = (ies)(epoch / 86400);
     uint32_t sec = (uint32_t)(epoch % 86400);
 
-    i64 year = 0, month = 0, day = 0;
+    ies year = 0, month = 0, day = 0;
     civil_from_days(days, &year, &month, &day);
 
     if (year < 1970) {
