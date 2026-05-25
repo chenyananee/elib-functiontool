@@ -4,6 +4,7 @@
 #define ELIB_FT_STR_H
 
 #include <stdint.h>
+#include <stddef.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,13 +49,31 @@ int elib_ft_strncmp(const char *s1, const char *s2, uint32_t n);
 /* ------------------------------------------------------------------ */
 
 /**
+ * @brief Convert string to signed 32-bit integer
+ * @param s String pointer
+ * @param max_len Maximum characters to parse
+ * @param endptr Output pointer for first unparsed character (can be NULL)
+ * @return Parsed value, 0 on error
+ */
+int32_t elib_ft_atoi32(const char *s, uint32_t max_len, const char **endptr);
+
+/**
  * @brief Convert string to unsigned 32-bit integer
  * @param s String pointer
  * @param max_len Maximum characters to parse
  * @param endptr Output pointer for first unparsed character (can be NULL)
  * @return Parsed value, 0 on error
  */
-uint32_t elib_ft_atoi(const char *s, uint32_t max_len, const char **endptr);
+uint32_t elib_ft_atou32(const char *s, uint32_t max_len, const char **endptr);
+
+/**
+ * @brief Convert string to double (floating point)
+ * @param s String pointer
+ * @param max_len Maximum characters to parse
+ * @param endptr Output pointer for first unparsed character (can be NULL)
+ * @return Parsed value, 0.0 on error
+ */
+double elib_ft_atof(const char *s, uint32_t max_len, const char **endptr);
 
 #ifdef __cplusplus
 }

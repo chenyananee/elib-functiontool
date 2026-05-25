@@ -102,10 +102,12 @@
 
 | 函数 | 说明 |
 |------|------|
-| `elib_ft_strlen(s, max_len)` | 获取字符串长度（受 max_len 限制） |
-| `elib_ft_strcmp(s1, s2)` | 比较两个字符串 |
-| `elib_ft_strncmp(s1, s2, n)` | 比较前 n 个字符 |
-| `elib_ft_atoi(s, max_len, endptr)` | 字符串转无符号整数 |
+| `elib_ft_strlen(s, max_len)` | 字符串长度（有界），内部委托 `strnlen` |
+| `elib_ft_strcmp(s1, s2)` | 字符串比较（NULL 安全），内部委托 `strcmp` |
+| `elib_ft_strncmp(s1, s2, n)` | 前 n 字符比较（NULL 安全），内部委托 `strncmp` |
+| `elib_ft_atoi32(s, max_len, endptr)` | 有符号整数解析，支持正负号 |
+| `elib_ft_atou32(s, max_len, endptr)` | 无符号整数解析 |
+| `elib_ft_atof(s, max_len, endptr)` | 浮点数解析（支持正负小数） |
 
 ### endian — 字节序转换
 

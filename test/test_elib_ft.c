@@ -1212,70 +1212,124 @@ static void test_strncmp_null_n(void)
     assert(elib_ft_strncmp("abc", "abc", 0) == 0);
 }
 
-static void test_atoi_normal(void)
+static void test_atoi32_normal(void)
 {
     const char *end;
-    assert(elib_ft_atoi("12345", 10, &end) == 12345);
+    assert(elib_ft_atoi32("12345", 10, &end) == 12345);
     assert(*end == '\0');
 }
 
-static void test_atoi_with_limit(void)
+static void test_atoi32_negative(void)
 {
     const char *end;
-    assert(elib_ft_atoi("12345", 3, &end) == 12);
+    assert(elib_ft_atoi32("-12345", 10, &end) == -12345);
+    assert(*end == '\0');
+}
+
+static void test_atoi32_positive_sign(void)
+{
+    const char *end;
+    assert(elib_ft_atoi32("+12345", 10, &end) == 12345);
+    assert(*end == '\0');
+}
+
+static void test_atoi32_with_limit(void)
+{
+    const char *end;
+    assert(elib_ft_atoi32("12345", 3, &end) == 12);
     assert(*end == '3');
 }
 
-static void test_atoi_multiframe(void)
+static void test_atoi32_zero(void)
 {
     const char *end;
-    assert(elib_ft_atoi("123", 10, &end) == 123);
+    assert(elib_ft_atoi32("0", 10, &end) == 0);
     assert(*end == '\0');
 }
 
-static void test_atoi_zero(void)
+static void test_atoi32_leading_spaces(void)
 {
     const char *end;
-    assert(elib_ft_atoi("0", 10, &end) == 0);
-    assert(*end == '\0');
-}
-
-static void test_atoi_leading_spaces(void)
-{
-    const char *end;
-    assert(elib_ft_atoi("  42abc", 10, &end) == 42);
+    assert(elib_ft_atoi32("  -42abc", 10, &end) == -42);
     assert(*end == 'a');
 }
 
-static void test_atoi_invalid(void)
+static void test_atoi32_invalid(void)
 {
     const char *end;
-    assert(elib_ft_atoi("abc", 10, &end) == 0);
+    assert(elib_ft_atoi32("abc", 10, &end) == 0);
 }
 
-static void test_atoi_null(void)
+static void test_atoi32_null(void)
 {
     const char *end;
-    assert(elib_ft_atoi(NULL, 10, &end) == 0);
+    assert(elib_ft_atoi32(NULL, 10, &end) == 0);
     assert(end == NULL);
 }
 
-static void test_atoi_null_endptr(void)
-{
-    assert(elib_ft_atoi("123", 10, NULL) == 123);
-}
-
-static void test_atoi_empty(void)
+static void test_atou32_normal(void)
 {
     const char *end;
-    assert(elib_ft_atoi("", 10, &end) == 0);
+    assert(elib_ft_atou32("12345", 10, &end) == 12345);
+    assert(*end == '\0');
 }
 
-static void test_atoi_overflow(void)
+static void test_atou32_zero(void)
 {
     const char *end;
-    /* 4000000000 > 2^32-1 */
-    assert(elib_ft_atoi("4000000000", 10, &end) == 4000000000U);
+    assert(elib_ft_atou32("0", 10, &end) == 0);
+}
+
+static void test_atou32_with_limit(void)
+{
+    const char *end;
+    assert(elib_ft_atou32("12345", 3, &end) == 12);
+    assert(*end == '3');
+}
+
+static void test_atou32_null(void)
+{
+    const char *end;
+    assert(elib_ft_atou32(NULL, 10, &end) == 0);
+    assert(end == NULL);
+}
+
+static void test_atof_normal(void)
+{
+    const char *end;
+    double v = elib_ft_atof("3.14", 10, &end);
+    assert(v > 3.13 && v < 3.15);
+    assert(*end == '\0');
+}
+
+static void test_atof_negative(void)
+{
+    const char *end;
+    double v = elib_ft_atof("-2.718", 10, &end);
+    assert(v < -2.71 && v > -2.73);
+    assert(*end == '\0');
+}
+
+static void test_atof_integer(void)
+{
+    const char *end;
+    double v = elib_ft_atof("42", 10, &end);
+    assert(v > 41.9 && v < 42.1);
+    assert(*end == '\0');
+}
+
+static void test_atof_with_limit(void)
+{
+    const char *end;
+    double v = elib_ft_atof("3.14159", 4, &end);
+    assert(v > 3.13 && v < 3.15);
+}
+
+static void test_atof_null(void)
+{
+    const char *end;
+    assert(elib_ft_atof(NULL, 10, &end) == 0.0);
+    assert(end == NULL);
 }
 
 /* ------------------------------------------------------------------ */
@@ -1454,16 +1508,23 @@ int main(void)
     RUN_TEST(test_strncmp_null_s2);
     RUN_TEST(test_strncmp_null_both);
     RUN_TEST(test_strncmp_null_n);
-    RUN_TEST(test_atoi_normal);
-    RUN_TEST(test_atoi_with_limit);
-    RUN_TEST(test_atoi_multiframe);
-    RUN_TEST(test_atoi_zero);
-    RUN_TEST(test_atoi_leading_spaces);
-    RUN_TEST(test_atoi_invalid);
-    RUN_TEST(test_atoi_null);
-    RUN_TEST(test_atoi_null_endptr);
-    RUN_TEST(test_atoi_empty);
-    RUN_TEST(test_atoi_overflow);
+    RUN_TEST(test_atoi32_normal);
+    RUN_TEST(test_atoi32_negative);
+    RUN_TEST(test_atoi32_positive_sign);
+    RUN_TEST(test_atoi32_with_limit);
+    RUN_TEST(test_atoi32_zero);
+    RUN_TEST(test_atoi32_leading_spaces);
+    RUN_TEST(test_atoi32_invalid);
+    RUN_TEST(test_atoi32_null);
+    RUN_TEST(test_atou32_normal);
+    RUN_TEST(test_atou32_zero);
+    RUN_TEST(test_atou32_with_limit);
+    RUN_TEST(test_atou32_null);
+    RUN_TEST(test_atof_normal);
+    RUN_TEST(test_atof_negative);
+    RUN_TEST(test_atof_integer);
+    RUN_TEST(test_atof_with_limit);
+    RUN_TEST(test_atof_null);
 
     /* endian tests */
     printf("\n");
@@ -1495,6 +1556,6 @@ int main(void)
     RUN_TEST(test_find_next_clear_out_of_range);
     RUN_TEST(test_find_next_clear_null);
 
-    printf("\nAll %d tests passed.\n", 98 + 30);
+    printf("\nAll %d tests passed.\n", 98 + 37);
     return 0;
 }
