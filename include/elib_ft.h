@@ -25,5 +25,6 @@
 #include "elib_ft_mem.h"
 #include "elib_ft_ringbuf.h"
 #include "elib_ft_list.h"
+#include "elib_ft_checksum.h"
 
 #endif /* ELIB_FT_H */

@@ -950,6 +950,170 @@ static void test_bitmap_find_non_byte_aligned(void)
 }
 
 /* ------------------------------------------------------------------ */
+/*  elib_ft_checksum tests                                             */
+/* ------------------------------------------------------------------ */
+
+/* "123456789" — standard CRC test vector */
+static const uint8_t chk_test_data[] = {
+    0x31, 0x32, 0x33, 0x34, 0x35, 0x36, 0x37, 0x38, 0x39
+};
+
+static void test_sum8_basic(void)
+{
+    elib_ft_sum8_ctx_t ctx;
+    elib_ft_sum8_init(&ctx);
+    elib_ft_sum8_update(&ctx, chk_test_data, 9);
+    uint8_t r = elib_ft_sum8_final(&ctx);
+    /* 0x31+0x32+...+0x39 = 477 = 0x1DD, mod 256 = 0xDD */
+    assert(r == 0xDD);
+}
+
+static void test_sum8_multiframe(void)
+{
+    elib_ft_sum8_ctx_t ctx;
+    elib_ft_sum8_init(&ctx);
+    elib_ft_sum8_update(&ctx, chk_test_data, 4);
+    elib_ft_sum8_update(&ctx, chk_test_data + 4, 5);
+    uint8_t r = elib_ft_sum8_final(&ctx);
+    assert(r == 0xDD);
+}
+
+static void test_sum8_oneshot(void)
+{
+    assert(elib_ft_sum8(chk_test_data, 9) == 0xDD);
+}
+
+static void test_sum8_null(void)
+{
+    elib_ft_sum8_init(NULL);
+    elib_ft_sum8_update(NULL, chk_test_data, 9);
+    elib_ft_sum8_update((elib_ft_sum8_ctx_t *)1, NULL, 9);
+    assert(elib_ft_sum8_final(NULL) == 0);
+    assert(elib_ft_sum8(NULL, 9) == 0);
+    assert(elib_ft_sum8(chk_test_data, 0) == 0);
+}
+
+static void test_crc8_ccitt(void)
+{
+    /* CRC8-CCITT: poly=0x07, init=0x00, ref=0 → "123456789" = 0xF4 */
+    elib_ft_crc8_ctx_t ctx;
+    ELIB_FT_CRC8_CCITT_INIT(&ctx);
+    elib_ft_crc8_update(&ctx, chk_test_data, 9);
+    assert(elib_ft_crc8_final(&ctx) == 0xF4);
+}
+
+static void test_crc8_multiframe(void)
+{
+    elib_ft_crc8_ctx_t ctx;
+    ELIB_FT_CRC8_CCITT_INIT(&ctx);
+    elib_ft_crc8_update(&ctx, chk_test_data, 4);
+    elib_ft_crc8_update(&ctx, chk_test_data + 4, 5);
+    assert(elib_ft_crc8_final(&ctx) == 0xF4);
+}
+
+static void test_crc8_oneshot(void)
+{
+    assert(elib_ft_crc8(chk_test_data, 9, 0x07, 0x00, 0x00, 0) == 0xF4);
+}
+
+static void test_crc8_null(void)
+{
+    elib_ft_crc8_init(NULL, 0x07, 0x00, 0x00, 0);
+    elib_ft_crc8_update(NULL, chk_test_data, 9);
+    elib_ft_crc8_ctx_t ctx;
+    elib_ft_crc8_update(&ctx, NULL, 9);
+    assert(elib_ft_crc8_final(NULL) == 0);
+    assert(elib_ft_crc8(NULL, 9, 0x07, 0x00, 0x00, 0) == 0);
+}
+
+static void test_crc16_xmodem(void)
+{
+    /* CRC16-XMODEM: poly=0x1021, init=0x0000, ref=0 → "123456789" = 0x31C3 */
+    elib_ft_crc16_ctx_t ctx;
+    ELIB_FT_CRC16_XMODEM_INIT(&ctx);
+    elib_ft_crc16_update(&ctx, chk_test_data, 9);
+    assert(elib_ft_crc16_final(&ctx) == 0x31C3);
+}
+
+static void test_crc16_modbus(void)
+{
+    /* CRC16-MODBUS: poly=0xA001, init=0xFFFF, ref=1 → "123456789" = 0x4B37 */
+    elib_ft_crc16_ctx_t ctx;
+    ELIB_FT_CRC16_MODBUS_INIT(&ctx);
+    elib_ft_crc16_update(&ctx, chk_test_data, 9);
+    assert(elib_ft_crc16_final(&ctx) == 0x4B37);
+}
+
+static void test_crc16_multiframe(void)
+{
+    elib_ft_crc16_ctx_t ctx;
+    ELIB_FT_CRC16_XMODEM_INIT(&ctx);
+    elib_ft_crc16_update(&ctx, chk_test_data, 4);
+    elib_ft_crc16_update(&ctx, chk_test_data + 4, 5);
+    assert(elib_ft_crc16_final(&ctx) == 0x31C3);
+}
+
+static void test_crc16_oneshot(void)
+{
+    assert(elib_ft_crc16(chk_test_data, 9, 0x1021, 0x0000, 0x0000, 0) == 0x31C3);
+    assert(elib_ft_crc16(chk_test_data, 9, 0xA001, 0xFFFF, 0x0000, 1) == 0x4B37);
+}
+
+static void test_crc16_null(void)
+{
+    elib_ft_crc16_init(NULL, 0x1021, 0x0000, 0x0000, 0);
+    elib_ft_crc16_update(NULL, chk_test_data, 9);
+    elib_ft_crc16_ctx_t ctx;
+    elib_ft_crc16_update(&ctx, NULL, 9);
+    assert(elib_ft_crc16_final(NULL) == 0);
+    assert(elib_ft_crc16(NULL, 9, 0x1021, 0x0000, 0x0000, 0) == 0);
+}
+
+static void test_crc32_ethernet(void)
+{
+    /* CRC32-Ethernet: poly=0xEDB88320, init=0xFFFFFFFF, xor_out=0xFFFFFFFF, ref=1
+     * "123456789" → 0xCBF43926 */
+    elib_ft_crc32_ctx_t ctx;
+    ELIB_FT_CRC32_ETHERNET_INIT(&ctx);
+    elib_ft_crc32_update(&ctx, chk_test_data, 9);
+    assert(elib_ft_crc32_final(&ctx) == 0xCBF43926u);
+}
+
+static void test_crc32_multiframe(void)
+{
+    elib_ft_crc32_ctx_t ctx;
+    ELIB_FT_CRC32_ETHERNET_INIT(&ctx);
+    elib_ft_crc32_update(&ctx, chk_test_data, 4);
+    elib_ft_crc32_update(&ctx, chk_test_data + 4, 5);
+    assert(elib_ft_crc32_final(&ctx) == 0xCBF43926u);
+}
+
+static void test_crc32_oneshot(void)
+{
+    assert(elib_ft_crc32(chk_test_data, 9, 0xEDB88320u, 0xFFFFFFFFu, 0xFFFFFFFFu, 1) == 0xCBF43926u);
+}
+
+static void test_crc32_null(void)
+{
+    elib_ft_crc32_init(NULL, 0xEDB88320u, 0xFFFFFFFFu, 0xFFFFFFFFu, 1);
+    elib_ft_crc32_update(NULL, chk_test_data, 9);
+    elib_ft_crc32_ctx_t ctx;
+    elib_ft_crc32_update(&ctx, NULL, 9);
+    assert(elib_ft_crc32_final(NULL) == 0);
+    assert(elib_ft_crc32(NULL, 9, 0xEDB88320u, 0xFFFFFFFFu, 0xFFFFFFFFu, 1) == 0);
+}
+
+static void test_crc32_msb_first(void)
+{
+    /* CRC32-ISO-HDLC MSB-first: poly=0x04C11DB7, init=0xFFFFFFFF, xor_out=0xFFFFFFFF, ref=0
+     * "123456789" → 0xCBF43926 */
+    elib_ft_crc32_ctx_t ctx;
+    elib_ft_crc32_init(&ctx, 0x04C11DB7u, 0xFFFFFFFFu, 0xFFFFFFFFu, 0);
+    elib_ft_crc32_update(&ctx, chk_test_data, 9);
+    assert(elib_ft_crc32_final(&ctx) == 0xCBF43926u);
+}
+
+/* ------------------------------------------------------------------ */
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -1054,6 +1218,27 @@ int main(void)
     RUN_TEST(test_bitmap_find_start_out_of_range);
     RUN_TEST(test_bitmap_find_non_byte_aligned);
 
-    printf("\nAll 80 tests passed.\n");
+    /* checksum tests */
+    printf("\n");
+    RUN_TEST(test_sum8_basic);
+    RUN_TEST(test_sum8_multiframe);
+    RUN_TEST(test_sum8_oneshot);
+    RUN_TEST(test_sum8_null);
+    RUN_TEST(test_crc8_ccitt);
+    RUN_TEST(test_crc8_multiframe);
+    RUN_TEST(test_crc8_oneshot);
+    RUN_TEST(test_crc8_null);
+    RUN_TEST(test_crc16_xmodem);
+    RUN_TEST(test_crc16_modbus);
+    RUN_TEST(test_crc16_multiframe);
+    RUN_TEST(test_crc16_oneshot);
+    RUN_TEST(test_crc16_null);
+    RUN_TEST(test_crc32_ethernet);
+    RUN_TEST(test_crc32_multiframe);
+    RUN_TEST(test_crc32_oneshot);
+    RUN_TEST(test_crc32_null);
+    RUN_TEST(test_crc32_msb_first);
+
+    printf("\nAll 98 tests passed.\n");
     return 0;
 }

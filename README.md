@@ -9,6 +9,7 @@
 | mem | [docs/usage_mem.md](docs/usage_mem.md) |
 | ringbuf | [docs/usage_ringbuf.md](docs/usage_ringbuf.md) |
 | list | [docs/usage_list.md](docs/usage_list.md) |
+| checksum | [docs/usage_checksum.md](docs/usage_checksum.md) |
 
 ## 模块列表
 
@@ -17,6 +18,7 @@
 | mem | `elib_ft_mem.h` | 内存拷贝/填充/位图操作/数组宏 |
 | ringbuf | `elib_ft_ringbuf.h` | 基于 cell 的环形缓冲区 |
 | list | `elib_ft_list.h` | 侵入式双向链表 |
+| checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32 校验算法 |
 | err | `elib_ft_err.h` | 统一错误码 |
 | 兼容宏 | `elib_ft.h` | `ELIB_FT_WEAK` / `ELIB_FT_ARRAY_SIZE` 等 |
 
@@ -71,6 +73,27 @@
 | `ELIB_FT_LIST_FOR_EACH(cursor, list)` | 遍历 |
 | `ELIB_FT_LIST_FOR_EACH_SAFE(cursor, tmp, list)` | 安全遍历 |
 
+### checksum — 校验算法
+
+> `init` 时指定 `xor_out`，`final` 自动完成异或，无需手动处理。
+
+| 函数 / 宏 | 说明 |
+|-----------|------|
+| `elib_ft_sum8_init/update/final` | 和校验（多帧） |
+| `elib_ft_sum8(data, len)` | 和校验（单次） |
+| `elib_ft_crc8_init/update/final` | CRC8（多帧） |
+| `elib_ft_crc8(data, len, poly, init, ref)` | CRC8（单次） |
+| `ELIB_FT_CRC8_CCITT_INIT(ctx)` | CRC8-CCITT 快捷初始化 |
+| `ELIB_FT_CRC8_MAXIM_INIT(ctx)` | CRC8-MAXIM 快捷初始化 |
+| `elib_ft_crc16_init/update/final` | CRC16（多帧） |
+| `elib_ft_crc16(data, len, poly, init, ref)` | CRC16（单次） |
+| `ELIB_FT_CRC16_XMODEM_INIT(ctx)` | CRC16-XMODEM 快捷初始化 |
+| `ELIB_FT_CRC16_CCITT_INIT(ctx)` | CRC16-CCITT 快捷初始化 |
+| `ELIB_FT_CRC16_MODBUS_INIT(ctx)` | CRC16-MODBUS 快捷初始化 |
+| `elib_ft_crc32_init/update/final` | CRC32（多帧） |
+| `elib_ft_crc32(data, len, poly, init, ref)` | CRC32（单次） |
+| `ELIB_FT_CRC32_ETHERNET_INIT(ctx)` | CRC32-Ethernet 快捷初始化 |
+
 ### 错误码
 
 | 错误码 | 说明 |
@@ -91,17 +114,20 @@ elib-functiontool/
 │   ├── elib_ft_err.h              # 错误码
 │   ├── elib_ft_mem.h              # 内存操作
 │   ├── elib_ft_ringbuf.h          # 环形缓冲区
-│   └── elib_ft_list.h             # 侵入式链表
+│   ├── elib_ft_list.h             # 侵入式链表
+│   └── elib_ft_checksum.h         # 校验算法
 ├── src/
 │   ├── elib_ft_core.c             # mem 实现
 │   ├── elib_ft_ringbuf_core.c     # ringbuf 实现
-│   └── elib_ft_list_core.c        # list 实现
+│   ├── elib_ft_list_core.c        # list 实现
+│   └── elib_ft_checksum_core.c    # checksum 实现
 ├── test/
 │   └── test_elib_ft.c             # 单元测试
 ├── docs/
 │   ├── usage_mem.md               # mem 用法
 │   ├── usage_ringbuf.md           # ringbuf 用法
-│   └── usage_list.md              # list 用法
+│   ├── usage_list.md              # list 用法
+│   └── usage_checksum.md          # checksum 用法
 ├── scripts/
 ├── LICENSE
 └── README.md
@@ -110,7 +136,7 @@ elib-functiontool/
 ## 构建与测试
 
 ```bash
-gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c src/elib_ft_core.c src/elib_ft_ringbuf_core.c src/elib_ft_list_core.c && ./test_elib_ft
+gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c src/elib_ft_core.c src/elib_ft_ringbuf_core.c src/elib_ft_list_core.c src/elib_ft_checksum_core.c && ./test_elib_ft
 ```
 
 ## 许可证
