@@ -6,6 +6,7 @@
 
 | 模块 | 文档 |
 |------|------|
+| util | [docs/usage_util.md](docs/usage_util.md) |
 | mem | [docs/usage_mem.md](docs/usage_mem.md) |
 | ringbuf | [docs/usage_ringbuf.md](docs/usage_ringbuf.md) |
 | list | [docs/usage_list.md](docs/usage_list.md) |
@@ -18,7 +19,8 @@
 
 | 模块 | 头文件 | 说明 |
 |------|--------|------|
-| mem | `elib_ft_mem.h` | 内存拷贝/填充/位图操作/数组宏 |
+| util | `elib_ft_util.h` | 快捷宏：MIN/MAX/CLAMP/MAP/WEAK/ARRAY_SIZE |
+| mem | `elib_ft_mem.h` | 内存拷贝/填充/位图操作 |
 | ringbuf | `elib_ft_ringbuf.h` | 基于 cell 的环形缓冲区 |
 | list | `elib_ft_list.h` | 侵入式双向链表 |
 | checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32/FNV-1a 校验算法 |
@@ -26,7 +28,6 @@
 | endian | `elib_ft_endian.h` | 字节序转换 |
 | time | `elib_ft_time.h` | 日历时间与世纪秒转换（`uint64_t` 默认，支持 32 位平台重定义） |
 | err | `elib_ft_err.h` | 统一错误码 |
-| 兼容宏 | `elib_ft.h` | `ELIB_FT_WEAK` / `ELIB_FT_ARRAY_SIZE` 等 |
 
 用户只需 `#include "elib_ft.h"` 即可引入全部模块，也可单独引用子模块头文件。
 
@@ -34,9 +35,8 @@
 
 ### mem — 内存操作
 
-| 函数 / 宏 | 说明 |
-|-----------|------|
-| `ELIB_FT_ARRAY_SIZE(arr)` | 计算数组元素个数 |
+| 函数 | 说明 |
+|------|------|
 | `elib_ft_memcpy(dst, src, len, max_len)` | 内存拷贝，超出 max_len 截断，返回实际字节数 |
 | `elib_ft_memset(dst, val, len, max_len)` | 内存填充，超出 max_len 截断，返回实际字节数 |
 | `elib_ft_bitmap_set(buf, max_bits, bit)` | 置位 |
@@ -48,6 +48,18 @@
 | `elib_ft_bitmap_shift_right(buf, max_bits, n)` | 右移 n 位（低位丢弃） |
 | `elib_ft_bitmap_find_first_set(buf, max_bits, start)` | 查找最近的 1 |
 | `elib_ft_bitmap_find_first_clear(buf, max_bits, start)` | 查找最近的 0 |
+
+### util — 快捷宏
+
+| 宏 | 说明 |
+|----|------|
+| `ELIB_FT_MIN(a, b)` | 返回较小值 |
+| `ELIB_FT_MAX(a, b)` | 返回较大值 |
+| `ELIB_FT_CLAMP(val, lo, hi)` | 限幅至 [lo, hi] |
+| `ELIB_FT_MAP(val, in_lo, in_hi, out_lo, out_hi)` | 整数线性映射（四舍五入） |
+| `ELIB_FT_MAP_F(val, in_lo, in_hi, out_lo, out_hi)` | 浮点线性映射 |
+| `ELIB_FT_ARRAY_SIZE(arr)` | 计算数组元素个数 |
+| `ELIB_FT_WEAK` | 编译器弱符号修饰 |
 
 ### ringbuf — 环形缓冲区
 
@@ -154,6 +166,7 @@
 elib-functiontool/
 ├── include/
 │   ├── elib_ft.h                  # 伞形头文件
+│   ├── elib_ft_util.h             # 快捷宏
 │   ├── elib_ft_err.h              # 错误码
 │   ├── elib_ft_mem.h              # 内存操作
 │   ├── elib_ft_ringbuf.h          # 环形缓冲区
@@ -161,8 +174,7 @@ elib-functiontool/
 │   ├── elib_ft_checksum.h         # 校验算法
 │   ├── elib_ft_str.h              # 字符串操作
 │   ├── elib_ft_endian.h            # 字节序转换
-│   ├── elib_ft_time.h              # 日历时间
-│   └── elib_ft_err.h               # 错误码
+│   └── elib_ft_time.h              # 日历时间
 ├── src/
 │   ├── elib_ft_mem_core.c            # mem 实现
 │   ├── elib_ft_bitmap_core.c         # bitmap 实现
@@ -175,6 +187,7 @@ elib-functiontool/
 ├── test/
 │   └── test_elib_ft.c             # 单元测试
 ├── docs/
+│   ├── usage_util.md               # util 用法
 │   ├── usage_mem.md               # mem 用法
 │   ├── usage_ringbuf.md           # ringbuf 用法
 │   ├── usage_list.md              # list 用法

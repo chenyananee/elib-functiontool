@@ -5,21 +5,15 @@
 
 #include <stdint.h>
 #include "elib_ft_err.h"
+#include "elib_ft_util.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /* ------------------------------------------------------------------ */
-/*  Macros                                                             */
+/*  Memory copy / fill                                                  */
 /* ------------------------------------------------------------------ */
-
-/**
- * @brief Get number of elements in an array
- * @param arr Array variable (not a pointer)
- * @return Element count as uint32_t
- */
-#define ELIB_FT_ARRAY_SIZE(arr) ((uint32_t)(sizeof(arr) / sizeof((arr)[0])))
 
 /**
  * @brief Copy memory with max length limit
