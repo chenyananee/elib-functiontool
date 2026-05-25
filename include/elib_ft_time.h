@@ -28,6 +28,21 @@ extern "C" {
     #define ELIB_FT_EPOCH_T uint64_t
 #endif
 
+/**
+ * @internal
+ * @def ELIB_FT_TIME_I64
+ * @brief Internal arithmetic type (always int64_t).
+ *
+ * User code should not use this type directly.
+ *
+ * Year range is limited to ~5883516 because: year * 365 must fit in
+ * int32_t (max 2147483647 / 365 ≈ 5883516). This limit applies
+ * regardless of ELIB_FT_EPOCH_T width.
+ */
+#ifndef ELIB_FT_TIME_I64
+    #define ELIB_FT_TIME_I64 int64_t
+#endif
+
 /* ------------------------------------------------------------------ */
 /*  Calendar time structure                                            */
 /* ------------------------------------------------------------------ */
