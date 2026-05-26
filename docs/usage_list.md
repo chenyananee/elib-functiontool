@@ -50,7 +50,7 @@ my_item_t c = {3, {NULL, NULL}};
 /* 尾部插入：1 → 2 → 3 */
 elib_ft_list_push_back(&list, &a.node);
 elib_ft_list_push_back(&list, &b.node);
-elib_ft_list_push_back(&list, &b.node);
+elib_ft_list_push_back(&list, &c.node);
 
 /* 头部插入：0 → 1 → 2 → 3 */
 my_item_t z = {0, {NULL, NULL}};
@@ -132,7 +132,7 @@ ELIB_FT_LIST_FOR_EACH_SAFE(cursor, tmp, &list) {
 
 ## ELIB_FT_LIST_ENTRY
 
-从节点指针反推宿主结构体指针，类似 Linux 内核的 `container_of`：
+从节点指针反推宿主结构体指针，内部委托 `ELIB_FT_CONTAINER_OF` 实现：
 
 ```c
 my_item_t *item = ELIB_FT_LIST_ENTRY(node_ptr, my_item_t, node);
@@ -140,6 +140,8 @@ my_item_t *item = ELIB_FT_LIST_ENTRY(node_ptr, my_item_t, node);
 ```
 
 原理：`结构体地址 = 节点地址 - 节点在结构体内的偏移`
+
+> `ELIB_FT_LIST_ENTRY` 与 `ELIB_FT_CONTAINER_OF` 完全等价，后者可直接用于任何成员（不限于链表节点）。
 
 ---
 

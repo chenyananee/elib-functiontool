@@ -1701,6 +1701,223 @@ static void test_swap32_pattern(void)
 }
 
 /* ------------------------------------------------------------------ */
+/*  elib_ft_qmath tests                                                */
+/* ------------------------------------------------------------------ */
+
+/* Q32 conversion */
+static void test_q32_from_double_basic(void)
+{
+    int32_t q = elib_ft_q32_from_double(1.5, 16);
+    assert(q == 98304);
+}
+
+static void test_q32_to_double_basic(void)
+{
+    double v = elib_ft_q32_to_double(98304, 16);
+    assert(v > 1.499 && v < 1.501);
+}
+
+static void test_q32_roundtrip(void)
+{
+    int32_t q = elib_ft_q32_from_double(0.5, 31);
+    double v = elib_ft_q32_to_double(q, 31);
+    assert(v > 0.499 && v < 0.501);
+}
+
+static void test_q32_from_double_negative(void)
+{
+    assert(elib_ft_q32_from_double(-1.0, 16) == -65536);
+}
+
+static void test_q32_from_double_zero(void)
+{
+    assert(elib_ft_q32_from_double(0.0, 16) == 0);
+}
+
+static void test_q32_from_float_basic(void)
+{
+    assert(elib_ft_q32_from_float(1.5f, 16) == 98304);
+}
+
+static void test_q32_to_float_basic(void)
+{
+    float v = elib_ft_q32_to_float(98304, 16);
+    assert(v > 1.499f && v < 1.501f);
+}
+
+static void test_q32_from_double_n0(void)
+{
+    assert(elib_ft_q32_from_double(42.0, 0) == 42);
+}
+
+/* Q32 arithmetic */
+static void test_q32_add_basic(void)
+{
+    int32_t a = elib_ft_q32_from_double(1.0, 16);
+    int32_t b = elib_ft_q32_from_double(2.0, 16);
+    assert(elib_ft_q32_add(a, b) == elib_ft_q32_from_double(3.0, 16));
+}
+
+static void test_q32_sub_basic(void)
+{
+    int32_t a = elib_ft_q32_from_double(3.0, 16);
+    int32_t b = elib_ft_q32_from_double(1.0, 16);
+    assert(elib_ft_q32_sub(a, b) == elib_ft_q32_from_double(2.0, 16));
+}
+
+static void test_q32_mul_basic(void)
+{
+    int32_t a = elib_ft_q32_from_double(2.0, 16);
+    int32_t b = elib_ft_q32_from_double(3.0, 16);
+    double v = elib_ft_q32_to_double(elib_ft_q32_mul(a, b, 16), 16);
+    assert(v > 5.999 && v < 6.001);
+}
+
+static void test_q32_mul_fraction(void)
+{
+    int32_t a = elib_ft_q32_from_double(1.5, 16);
+    int32_t b = elib_ft_q32_from_double(2.0, 16);
+    double v = elib_ft_q32_to_double(elib_ft_q32_mul(a, b, 16), 16);
+    assert(v > 2.999 && v < 3.001);
+}
+
+static void test_q32_div_basic(void)
+{
+    int32_t a = elib_ft_q32_from_double(6.0, 16);
+    int32_t b = elib_ft_q32_from_double(2.0, 16);
+    double v = elib_ft_q32_to_double(elib_ft_q32_div(a, b, 16), 16);
+    assert(v > 2.999 && v < 3.001);
+}
+
+static void test_q32_div_fraction(void)
+{
+    int32_t a = elib_ft_q32_from_double(1.0, 16);
+    int32_t b = elib_ft_q32_from_double(3.0, 16);
+    double v = elib_ft_q32_to_double(elib_ft_q32_div(a, b, 16), 16);
+    assert(v > 0.333 && v < 0.334);
+}
+
+static void test_q32_add_s_overflow(void)
+{
+    int32_t out;
+    assert(elib_ft_q32_add_s(INT32_MAX, 1, &out) == ELIB_FT_ERR_EXCEED_MAX);
+}
+
+static void test_q32_sub_s_overflow(void)
+{
+    int32_t out;
+    assert(elib_ft_q32_sub_s(INT32_MIN, 1, &out) == ELIB_FT_ERR_EXCEED_MAX);
+}
+
+static void test_q32_div_s_by_zero(void)
+{
+    int32_t out;
+    assert(elib_ft_q32_div_s(100, 0, 16, &out) == ELIB_FT_ERR_INVALID_PARAM);
+}
+
+static void test_q32_add_s_ok(void)
+{
+    int32_t out;
+    assert(elib_ft_q32_add_s(1, 2, &out) == ELIB_FT_OK);
+    assert(out == 3);
+}
+
+/* Q32 rounding */
+static void test_q32_convert_up(void)
+{
+    int32_t q = 1 << 8;
+    assert(elib_ft_q32_convert(q, 8, 12) == (1 << 12));
+}
+
+static void test_q32_convert_down(void)
+{
+    int32_t q = 1 << 12;
+    assert(elib_ft_q32_convert(q, 12, 8) == (1 << 8));
+}
+
+static void test_q32_convert_same(void)
+{
+    assert(elib_ft_q32_convert(0x1234, 16, 16) == 0x1234);
+}
+
+static void test_q32_floor(void)
+{
+    int32_t q = elib_ft_q32_from_double(1.75, 16);
+    assert(elib_ft_q32_floor(q, 16) == elib_ft_q32_from_double(1.0, 16));
+}
+
+static void test_q32_ceil(void)
+{
+    int32_t q = elib_ft_q32_from_double(1.25, 16);
+    assert(elib_ft_q32_ceil(q, 16) == elib_ft_q32_from_double(2.0, 16));
+}
+
+static void test_q32_ceil_exact(void)
+{
+    int32_t q = elib_ft_q32_from_double(2.0, 16);
+    assert(elib_ft_q32_ceil(q, 16) == q);
+}
+
+static void test_q32_round_basic(void)
+{
+    int32_t q = elib_ft_q32_from_double(1.5, 16);
+    assert(elib_ft_q32_round(q, 16) == elib_ft_q32_from_double(2.0, 16));
+}
+
+static void test_q32_round_down(void)
+{
+    int32_t q = elib_ft_q32_from_double(1.4, 16);
+    assert(elib_ft_q32_round(q, 16) == elib_ft_q32_from_double(1.0, 16));
+}
+
+static void test_q32_round_n0(void)
+{
+    assert(elib_ft_q32_round(42, 0) == 42);
+}
+
+static void test_q32_abs(void)
+{
+    assert(elib_ft_q32_abs(-5) == 5);
+    assert(elib_ft_q32_abs(5) == 5);
+    assert(elib_ft_q32_abs(0) == 0);
+}
+
+static void test_q32_floor_negative(void)
+{
+    int32_t q = elib_ft_q32_from_double(-1.25, 16);
+    assert(elib_ft_q32_floor(q, 16) == elib_ft_q32_from_double(-2.0, 16));
+}
+
+/* UQ32 */
+static void test_uq32_from_double_basic(void) { assert(elib_ft_uq32_from_double(1.5, 16) == 98304u); }
+static void test_uq32_to_double_basic(void) { double v = elib_ft_uq32_to_double(98304u, 16); assert(v > 1.499 && v < 1.501); }
+static void test_uq32_add_basic(void) { uint32_t a = elib_ft_uq32_from_double(1.0, 16); uint32_t b = elib_ft_uq32_from_double(2.0, 16); assert(elib_ft_uq32_add(a, b) == elib_ft_uq32_from_double(3.0, 16)); }
+static void test_uq32_sub_basic(void) { uint32_t a = elib_ft_uq32_from_double(3.0, 16); uint32_t b = elib_ft_uq32_from_double(1.0, 16); assert(elib_ft_uq32_sub(a, b) == elib_ft_uq32_from_double(2.0, 16)); }
+static void test_uq32_mul_basic(void) { uint32_t a = elib_ft_uq32_from_double(2.0, 16); uint32_t b = elib_ft_uq32_from_double(3.0, 16); double v = elib_ft_uq32_to_double(elib_ft_uq32_mul(a, b, 16), 16); assert(v > 5.999 && v < 6.001); }
+static void test_uq32_div_basic(void) { uint32_t a = elib_ft_uq32_from_double(6.0, 16); uint32_t b = elib_ft_uq32_from_double(2.0, 16); double v = elib_ft_uq32_to_double(elib_ft_uq32_div(a, b, 16), 16); assert(v > 2.999 && v < 3.001); }
+static void test_uq32_add_s_overflow(void) { uint32_t out; assert(elib_ft_uq32_add_s(UINT32_MAX, 1, &out) == ELIB_FT_ERR_EXCEED_MAX); }
+static void test_uq32_sub_s_underflow(void) { uint32_t out; assert(elib_ft_uq32_sub_s(0, 1, &out) == ELIB_FT_ERR_EXCEED_MAX); }
+static void test_uq32_div_s_by_zero(void) { uint32_t out; assert(elib_ft_uq32_div_s(100, 0, 16, &out) == ELIB_FT_ERR_INVALID_PARAM); }
+static void test_uq32_convert_up(void) { assert(elib_ft_uq32_convert(1u << 8, 8, 12) == 1u << 12); }
+static void test_uq32_convert_down(void) { assert(elib_ft_uq32_convert(1u << 12, 12, 8) == 1u << 8); }
+
+/* Q16 */
+static void test_q16_from_double_basic(void) { assert(elib_ft_q16_from_double(0.5, 15) == 0x4000); }
+static void test_q16_to_double_basic(void) { double v = elib_ft_q16_to_double(0x4000, 15); assert(v > 0.499 && v < 0.501); }
+static void test_q16_mul_basic(void) { int16_t a = elib_ft_q16_from_double(0.5, 14); int16_t b = elib_ft_q16_from_double(0.5, 14); double v = elib_ft_q16_to_double(elib_ft_q16_mul(a, b, 14), 14); assert(v > 0.249 && v < 0.251); }
+static void test_q16_div_basic(void) { int16_t a = elib_ft_q16_from_double(1.0, 14); int16_t b = elib_ft_q16_from_double(2.0, 14); double v = elib_ft_q16_to_double(elib_ft_q16_div(a, b, 14), 14); assert(v > 0.499 && v < 0.501); }
+static void test_uq16_from_double_basic(void) { assert(elib_ft_uq16_from_double(0.5, 16) == 0x8000); }
+static void test_uq16_mul_basic(void) { uint16_t a = elib_ft_uq16_from_double(0.5, 16); uint16_t b = elib_ft_uq16_from_double(0.5, 16); double v = elib_ft_uq16_to_double(elib_ft_uq16_mul(a, b, 16), 16); assert(v > 0.249 && v < 0.251); }
+
+/* Q64 */
+static void test_q64_from_double_basic(void) { assert(elib_ft_q64_from_double(1.5, 16) == 98304LL); }
+static void test_q64_to_double_basic(void) { double v = elib_ft_q64_to_double(98304LL, 16); assert(v > 1.499 && v < 1.501); }
+static void test_q64_mul_basic(void) { int64_t a = elib_ft_q64_from_double(2.0, 16); int64_t b = elib_ft_q64_from_double(3.0, 16); double v = elib_ft_q64_to_double(elib_ft_q64_mul(a, b, 16), 16); assert(v > 5.999 && v < 6.001); }
+static void test_q64_div_basic(void) { int64_t a = elib_ft_q64_from_double(6.0, 16); int64_t b = elib_ft_q64_from_double(2.0, 16); double v = elib_ft_q64_to_double(elib_ft_q64_div(a, b, 16), 16); assert(v > 2.999 && v < 3.001); }
+static void test_uq64_from_double_basic(void) { assert(elib_ft_uq64_from_double(1.5, 16) == 98304ULL); }
+static void test_uq64_to_double_basic(void) { double v = elib_ft_uq64_to_double(98304ULL, 16); assert(v > 1.499 && v < 1.501); }
+
+/* ------------------------------------------------------------------ */
 /*  Main                                                               */
 /* ------------------------------------------------------------------ */
 
@@ -1943,6 +2160,61 @@ int main(void)
     RUN_TEST(test_find_next_clear_cross_byte);
     RUN_TEST(test_find_next_clear_out_of_range);
     RUN_TEST(test_find_next_clear_null);
+
+    /* qmath tests */
+    printf("\n");
+    RUN_TEST(test_q32_from_double_basic);
+    RUN_TEST(test_q32_to_double_basic);
+    RUN_TEST(test_q32_roundtrip);
+    RUN_TEST(test_q32_from_double_negative);
+    RUN_TEST(test_q32_from_double_zero);
+    RUN_TEST(test_q32_from_float_basic);
+    RUN_TEST(test_q32_to_float_basic);
+    RUN_TEST(test_q32_from_double_n0);
+    RUN_TEST(test_q32_add_basic);
+    RUN_TEST(test_q32_sub_basic);
+    RUN_TEST(test_q32_mul_basic);
+    RUN_TEST(test_q32_mul_fraction);
+    RUN_TEST(test_q32_div_basic);
+    RUN_TEST(test_q32_div_fraction);
+    RUN_TEST(test_q32_add_s_overflow);
+    RUN_TEST(test_q32_sub_s_overflow);
+    RUN_TEST(test_q32_div_s_by_zero);
+    RUN_TEST(test_q32_add_s_ok);
+    RUN_TEST(test_q32_convert_up);
+    RUN_TEST(test_q32_convert_down);
+    RUN_TEST(test_q32_convert_same);
+    RUN_TEST(test_q32_floor);
+    RUN_TEST(test_q32_ceil);
+    RUN_TEST(test_q32_ceil_exact);
+    RUN_TEST(test_q32_round_basic);
+    RUN_TEST(test_q32_round_down);
+    RUN_TEST(test_q32_round_n0);
+    RUN_TEST(test_q32_abs);
+    RUN_TEST(test_q32_floor_negative);
+    RUN_TEST(test_uq32_from_double_basic);
+    RUN_TEST(test_uq32_to_double_basic);
+    RUN_TEST(test_uq32_add_basic);
+    RUN_TEST(test_uq32_sub_basic);
+    RUN_TEST(test_uq32_mul_basic);
+    RUN_TEST(test_uq32_div_basic);
+    RUN_TEST(test_uq32_add_s_overflow);
+    RUN_TEST(test_uq32_sub_s_underflow);
+    RUN_TEST(test_uq32_div_s_by_zero);
+    RUN_TEST(test_uq32_convert_up);
+    RUN_TEST(test_uq32_convert_down);
+    RUN_TEST(test_q16_from_double_basic);
+    RUN_TEST(test_q16_to_double_basic);
+    RUN_TEST(test_q16_mul_basic);
+    RUN_TEST(test_q16_div_basic);
+    RUN_TEST(test_uq16_from_double_basic);
+    RUN_TEST(test_uq16_mul_basic);
+    RUN_TEST(test_q64_from_double_basic);
+    RUN_TEST(test_q64_to_double_basic);
+    RUN_TEST(test_q64_mul_basic);
+    RUN_TEST(test_q64_div_basic);
+    RUN_TEST(test_uq64_from_double_basic);
+    RUN_TEST(test_uq64_to_double_basic);
 
     printf("\nAll %d tests passed.\n", 98 + 76);
     return 0;

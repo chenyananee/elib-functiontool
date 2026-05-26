@@ -8,19 +8,22 @@
 |------|------|
 | util | [docs/usage_util.md](docs/usage_util.md) |
 | mem | [docs/usage_mem.md](docs/usage_mem.md) |
+| bitmap | [docs/usage_bitmap.md](docs/usage_bitmap.md) |
 | ringbuf | [docs/usage_ringbuf.md](docs/usage_ringbuf.md) |
 | list | [docs/usage_list.md](docs/usage_list.md) |
 | checksum | [docs/usage_checksum.md](docs/usage_checksum.md) |
 | str | [docs/usage_str.md](docs/usage_str.md) |
 | endian | [docs/usage_endian.md](docs/usage_endian.md) |
 | time | [docs/usage_time.md](docs/usage_time.md) |
+| qmath | [docs/usage_qmath.md](docs/usage_qmath.md) |
 
 ## 模块列表
 
 | 模块 | 头文件 | 说明 |
 |------|--------|------|
-| util | `elib_ft_util.h` | 快捷宏：MIN/MAX/CLAMP/MAP/WEAK/ARRAY_SIZE |
-| mem | `elib_ft_mem.h` | 内存拷贝/填充/位图操作 |
+| util | `elib_ft_util.h` | 快捷宏：MIN/MAX/CLAMP/MAP/BIT/CONTAINER_OF/ARRAY_SIZE/WEAK/UNUSED |
+| mem | `elib_ft_mem.h` | 内存拷贝/填充 |
+| bitmap | `elib_ft_mem.h` | 位图操作（置位/清位/移位/查找） |
 | ringbuf | `elib_ft_ringbuf.h` | 基于 cell 的环形缓冲区 |
 | list | `elib_ft_list.h` | 侵入式双向链表 |
 | checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32/FNV-1a 校验算法 |
@@ -28,6 +31,7 @@
 | endian | `elib_ft_endian.h` | 字节序转换 |
 | time | `elib_ft_time.h` | 日历时间与世纪秒转换（`uint64_t` 默认，支持 32 位平台重定义） |
 | err | `elib_ft_err.h` | 统一错误码 |
+| qmath | `elib_ft_qmath.h` | Qm.n 定点数运算换算（16/32/64 位，有符号/无符号） |
 
 用户只需 `#include "elib_ft.h"` 即可引入全部模块，也可单独引用子模块头文件。
 
@@ -39,6 +43,11 @@
 |------|------|
 | `elib_ft_memcpy(dst, src, len, max_len)` | 内存拷贝，超出 max_len 截断，返回实际字节数 |
 | `elib_ft_memset(dst, val, len, max_len)` | 内存填充，超出 max_len 截断，返回实际字节数 |
+
+### bitmap — 位图操作
+
+| 函数 | 说明 |
+|------|------|
 | `elib_ft_bitmap_set(buf, max_bits, bit)` | 置位 |
 | `elib_ft_bitmap_clear(buf, max_bits, bit)` | 清位 |
 | `elib_ft_bitmap_get(buf, max_bits, bit)` | 获取位值（0 或 1） |
@@ -152,6 +161,32 @@
 | `elib_ft_epoch_to_time(epoch, t)` | Unix 世纪秒转日历时间 |
 | `elib_ft_time_wday(epoch)` | 从世纪秒获取星期几（0=周日...6=周六） |
 
+### qmath — Qm.n 定点数运算
+
+> 提供 Q16/UQ16/Q32/UQ32/Q64/UQ64 六套接口，每套包含快速版（无溢出检测）和安全版（返回错误码）。`n` 为小数位数，运行时传入。
+
+| 函数 | 说明 |
+|------|------|
+| `elib_ft_q32_from_double(val, n)` | double 转 Q32 |
+| `elib_ft_q32_to_double(q, n)` | Q32 转 double |
+| `elib_ft_q32_from_float(val, n)` | float 转 Q32 |
+| `elib_ft_q32_to_float(q, n)` | Q32 转 float |
+| `elib_ft_q32_add(a, b)` | Q32 加法（快速） |
+| `elib_ft_q32_sub(a, b)` | Q32 减法（快速） |
+| `elib_ft_q32_mul(a, b, n)` | Q32 乘法（快速） |
+| `elib_ft_q32_div(a, b, n)` | Q32 除法（快速） |
+| `elib_ft_q32_add_s(a, b, out)` | Q32 加法（安全） |
+| `elib_ft_q32_sub_s(a, b, out)` | Q32 减法（安全） |
+| `elib_ft_q32_mul_s(a, b, n, out)` | Q32 乘法（安全） |
+| `elib_ft_q32_div_s(a, b, n, out)` | Q32 除法（安全） |
+| `elib_ft_q32_convert(q, n_from, n_to)` | Q 格式转换 |
+| `elib_ft_q32_floor(q, n)` | 向下取整 |
+| `elib_ft_q32_ceil(q, n)` | 向上取整 |
+| `elib_ft_q32_round(q, n)` | 四舍五入 |
+| `elib_ft_q32_abs(q)` | 绝对值 |
+
+> Q16/UQ16/Q64/UQ64 接口对称，前缀替换即可。
+
 ### 错误码
 
 | 错误码 | 说明 |
@@ -171,13 +206,14 @@ elib-functiontool/
 │   ├── elib_ft.h                  # 伞形头文件
 │   ├── elib_ft_util.h             # 快捷宏
 │   ├── elib_ft_err.h              # 错误码
-│   ├── elib_ft_mem.h              # 内存操作
+│   ├── elib_ft_mem.h              # 内存操作 + 位图操作
 │   ├── elib_ft_ringbuf.h          # 环形缓冲区
 │   ├── elib_ft_list.h             # 侵入式链表
 │   ├── elib_ft_checksum.h         # 校验算法
 │   ├── elib_ft_str.h              # 字符串操作
 │   ├── elib_ft_endian.h            # 字节序转换
 │   └── elib_ft_time.h              # 日历时间
+│   ├── elib_ft_qmath.h            # Qm.n 定点数运算
 ├── src/
 │   ├── elib_ft_mem_core.c            # mem 实现
 │   ├── elib_ft_bitmap_core.c         # bitmap 实现
@@ -187,17 +223,20 @@ elib-functiontool/
 │   ├── elib_ft_str_core.c         # str 实现
 │   ├── elib_ft_endian_core.c       # endian 实现
 │   ├── elib_ft_time_core.c         # time 实现
+│   ├── elib_ft_qmath_core.c        # qmath 实现
 ├── test/
 │   └── test_elib_ft.c             # 单元测试
 ├── docs/
 │   ├── usage_util.md               # util 用法
 │   ├── usage_mem.md               # mem 用法
+│   ├── usage_bitmap.md            # bitmap 用法
 │   ├── usage_ringbuf.md           # ringbuf 用法
 │   ├── usage_list.md              # list 用法
 │   ├── usage_checksum.md         # checksum 用法
 │   ├── usage_str.md              # str 用法
 │   ├── usage_endian.md           # endian 用法
 │   └── usage_time.md            # time 用法
+│   ├── usage_qmath.md            # qmath 用法
 ├── scripts/
 ├── LICENSE
 └── README.md
@@ -209,7 +248,7 @@ elib-functiontool/
 gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c \
   src/elib_ft_mem_core.c src/elib_ft_bitmap_core.c src/elib_ft_ringbuf_core.c \
   src/elib_ft_list_core.c src/elib_ft_checksum_core.c src/elib_ft_str_core.c \
-  src/elib_ft_endian_core.c src/elib_ft_time_core.c && ./test_elib_ft
+  src/elib_ft_endian_core.c src/elib_ft_time_core.c src/elib_ft_qmath_core.c && ./test_elib_ft
 ```
 
 ## 许可证
