@@ -5,6 +5,7 @@
 
 #include "elib_ft_err.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

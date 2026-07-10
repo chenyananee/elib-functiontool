@@ -3,6 +3,7 @@
 #ifndef ELIB_FT_TIME_H
 #define ELIB_FT_TIME_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

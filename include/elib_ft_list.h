@@ -3,6 +3,7 @@
 #ifndef ELIB_FT_LIST_H
 #define ELIB_FT_LIST_H
 
+#include <stddef.h>
 #include <stdint.h>
 #include "elib_ft_util.h"
 

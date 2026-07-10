@@ -3,6 +3,7 @@
 #ifndef ELIB_FT_CHECKSUM_H
 #define ELIB_FT_CHECKSUM_H
 
+#include <stddef.h>
 #include <stdint.h>
 
 #ifdef __cplusplus

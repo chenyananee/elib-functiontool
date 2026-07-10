@@ -623,7 +623,7 @@ int64_t elib_ft_q64_sub(int64_t a, int64_t b)
 
 int64_t elib_ft_q64_mul(int64_t a, int64_t b, int n)
 {
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     __int128 r = (__int128)a * (__int128)b;
     return (int64_t)(r >> n);
 #else
@@ -643,7 +643,7 @@ int64_t elib_ft_q64_div(int64_t a, int64_t b, int n)
     if (b == 0) {
         return 0;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     return ((__int128)a << n) / (__int128)b;
 #else
     int64_t shifted = a << n;
@@ -686,7 +686,7 @@ int elib_ft_q64_mul_s(int64_t a, int64_t b, int n, int64_t *out)
     if (!Q_N_VALID_S(n, 64)) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     __int128 r = (__int128)a * (__int128)b;
     r >>= n;
     if (r > INT64_MAX || r < INT64_MIN) {
@@ -718,7 +718,7 @@ int elib_ft_q64_div_s(int64_t a, int64_t b, int n, int64_t *out)
     if (!Q_N_VALID_S(n, 64)) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     __int128 shifted = (__int128)a << n;
     __int128 r = shifted / (__int128)b;
     if (r > INT64_MAX || r < INT64_MIN) {
@@ -821,7 +821,7 @@ uint64_t elib_ft_uq64_sub(uint64_t a, uint64_t b)
 
 uint64_t elib_ft_uq64_mul(uint64_t a, uint64_t b, int n)
 {
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     unsigned __int128 r = (unsigned __int128)a * (unsigned __int128)b;
     return (uint64_t)(r >> n);
 #else
@@ -841,7 +841,7 @@ uint64_t elib_ft_uq64_div(uint64_t a, uint64_t b, int n)
     if (b == 0) {
         return 0;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     return ((unsigned __int128)a << n) / (unsigned __int128)b;
 #else
     uint64_t shifted = a << n;
@@ -884,7 +884,7 @@ int elib_ft_uq64_mul_s(uint64_t a, uint64_t b, int n, uint64_t *out)
     if (!Q_N_VALID_U(n, 64)) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     unsigned __int128 r = (unsigned __int128)a * (unsigned __int128)b;
     r >>= n;
     if (r > UINT64_MAX) {
@@ -915,7 +915,7 @@ int elib_ft_uq64_div_s(uint64_t a, uint64_t b, int n, uint64_t *out)
     if (!Q_N_VALID_U(n, 64)) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
-#if defined(__GNUC__) || defined(__clang__)
+#if defined(__SIZEOF_INT128__)
     unsigned __int128 shifted = (unsigned __int128)a << n;
     unsigned __int128 r = shifted / (unsigned __int128)b;
     if (r > UINT64_MAX) {
