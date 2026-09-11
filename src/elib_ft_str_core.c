@@ -5,12 +5,21 @@
 #include <string.h>
 #include <stdlib.h>
 
+static uint32_t ft_strnlen(const char *s, uint32_t max_len)
+{
+    uint32_t n = 0;
+    while (n < max_len && s[n] != '\0') {
+        n++;
+    }
+    return n;
+}
+
 uint32_t elib_ft_strlen(const char *s, uint32_t max_len)
 {
     if (s == NULL) {
         return 0;
     }
-    return strnlen(s, max_len);
+    return ft_strnlen(s, max_len);
 }
 
 int elib_ft_strcmp(const char *s1, const char *s2)
@@ -256,8 +265,8 @@ int elib_ft_strcmp_fast(const char *s1, const char *s2, uint32_t max_len)
     }
 
     /* find actual length within max_len */
-    uint32_t len1 = strnlen(s1, max_len);
-    uint32_t len2 = strnlen(s2, max_len);
+    uint32_t len1 = ft_strnlen(s1, max_len);
+    uint32_t len2 = ft_strnlen(s2, max_len);
 
     /* length difference -> determine sign */
     if (len1 != len2) {
