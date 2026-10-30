@@ -1,3 +1,5 @@
+**简体中文** | [English](README.en.md)
+
 # elib-functiontool
 
 零动态内存分配的嵌入式 C 工具库，纯 C99，无外部依赖。十个独立模块共享一套 `elib_ft_err_t` 错误码。单一公共头 `elib_ft.h`，`-Werror` 一等公民。当前版本 `2.0.0`（`ELIB_FT_VERSION`）。
