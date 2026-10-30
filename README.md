@@ -1,6 +1,6 @@
 # elib-functiontool
 
-零动态内存分配的嵌入式 C 工具库，纯 C99，无外部依赖。
+零动态内存分配的嵌入式 C 工具库，纯 C99，无外部依赖。十个独立模块共享一套 `elib_ft_err_t` 错误码。单一公共头 `elib_ft.h`，`-Werror` 一等公民。当前版本 `2.0.0`（`ELIB_FT_VERSION`）。
 
 ## 用法文档
 
@@ -19,237 +19,108 @@
 
 ## 模块列表
 
-| 模块 | 头文件 | 说明 |
-|------|--------|------|
-| util | `elib_ft_util.h` | 快捷宏：MIN/MAX/CLAMP/MAP/BIT/CONTAINER_OF/ARRAY_SIZE/WEAK/UNUSED |
-| mem | `elib_ft_mem.h` | 内存拷贝/填充 |
-| bitmap | `elib_ft_mem.h` | 位图操作（置位/清位/移位/查找） |
-| ringbuf | `elib_ft_ringbuf.h` | 基于 cell 的环形缓冲区 |
-| list | `elib_ft_list.h` | 侵入式双向链表 |
-| checksum | `elib_ft_checksum.h` | Sum8/CRC8/CRC16/CRC32/FNV-1a 校验算法 |
-| str | `elib_ft_str.h` | 字符串操作 |
-| endian | `elib_ft_endian.h` | 字节序转换 |
-| time | `elib_ft_time.h` | 日历时间与世纪秒转换（`uint64_t` 默认，支持 32 位平台重定义） |
-| err | `elib_ft_err.h` | 统一错误码 |
-| qmath | `elib_ft_qmath.h` | Qm.n 定点数运算换算（16/32/64 位，有符号/无符号） |
+唯一公共头：`#include "elib_ft.h"` 引入全部模块（v2 起不再提供子模块头文件）。
 
-用户只需 `#include "elib_ft.h"` 即可引入全部模块，也可单独引用子模块头文件。
+```c
+#include "elib_ft.h"
 
-## 功能列表
+/* 计算帧校验 */
+assert(elib_ft_crc16_init(&ctx, 0xA001, 0xFFFF, 0x0000, 1) == ELIB_FT_OK);
+elib_ft_crc16_update(&ctx, frame, len);
+uint16_t crc = elib_ft_crc16_final(&ctx);
 
-### mem — 内存操作
+/* 解析带界字符串（溢出 -> 0 且 *endptr = NULL） */
+int32_t v = elib_ft_atoi32(buf, max_len, &end);
 
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_memcpy(dst, src, len, max_len)` | 内存拷贝，超出 max_len 截断，返回实际字节数 |
-| `elib_ft_memset(dst, val, len, max_len)` | 内存填充，超出 max_len 截断，返回实际字节数 |
+/* Q32 定点: 1.5 * 2.0 = 3.0, 满界安全 */
+int32_t a = elib_ft_q32_from_double(1.5, 16);
+int32_t b = elib_ft_q32_from_double(2.0, 16);
+int32_t c = elib_ft_q32_mul(a, b, 16);
+```
 
-### bitmap — 位图操作
+## 游戏规则
 
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_bitmap_set(buf, max_bits, bit)` | 置位 |
-| `elib_ft_bitmap_clear(buf, max_bits, bit)` | 清位 |
-| `elib_ft_bitmap_get(buf, max_bits, bit)` | 获取位值（0 或 1） |
-| `elib_ft_bitmap_set_all(buf, max_bits)` | 全部置位 |
-| `elib_ft_bitmap_clear_all(buf, max_bits)` | 全部清零 |
-| `elib_ft_bitmap_shift_left(buf, max_bits, n)` | 左移 n 位（高位丢弃） |
-| `elib_ft_bitmap_shift_right(buf, max_bits, n)` | 右移 n 位（低位丢弃） |
-| `elib_ft_bitmap_find_first_set(buf, max_bits, start)` | 查找最近的 1 |
-| `elib_ft_bitmap_find_first_clear(buf, max_bits, start)` | 查找最近的 0 |
+- **零动态内存**：所有 ctx 用户分配、自包含，库内零全局状态
+- **配置 init 一次拒收**：非法配置（NULL / 越界 / size<2 / 非法 n 等）在 init 拒收，非法状态不进运行期；init 一律 `memset` 清零 ctx 后再填配置，数组链满不变量
+- **`_s` 变体与 ctx API 返回 `elib_ft_err_t`**；fast 变体走快路径返回值，其未做运行期校验的域在伞头逐一文档钉死（调用方构造保证 / 定义化 fallback）
 
-### util — 快捷宏
-
-| 宏 | 说明 |
-|----|------|
-| `ELIB_FT_MIN(a, b)` | 返回较小值 |
-| `ELIB_FT_MAX(a, b)` | 返回较大值 |
-| `ELIB_FT_CLAMP(val, lo, hi)` | 限幅至 [lo, hi] |
-| `ELIB_FT_MAP(val, in_lo, in_hi, out_lo, out_hi)` | 整数线性映射（四舍五入） |
-| `ELIB_FT_MAP_F(val, in_lo, in_hi, out_lo, out_hi)` | 浮点线性映射 |
-| `ELIB_FT_BIT(n)` | 单位掩码（1U << n） |
-| `ELIB_FT_CONTAINER_OF(ptr, type, member)` | 从成员指针获取宿主结构体 |
-| `ELIB_FT_ARRAY_SIZE(arr)` | 计算数组元素个数 |
-| `ELIB_FT_WEAK` | 编译器弱符号修饰 |
-| `ELIB_FT_UNUSED` | 编译器未使用抑制 |
-
-### ringbuf — 环形缓冲区
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_ringbuf_init(ctx, buf, size, cell_size)` | 初始化 |
-| `elib_ft_ringbuf_deinit(ctx)` | 反初始化 |
-| `elib_ft_ringbuf_used(ctx)` | 已用 cell 数 |
-| `elib_ft_ringbuf_free(ctx)` | 空闲 cell 数 |
-| `elib_ft_ringbuf_write(ctx, data, len, max_len)` | 写入 |
-| `elib_ft_ringbuf_read(ctx, data, len, max_len)` | 读取 |
-| `elib_ft_ringbuf_reset(ctx)` | 重置 |
-
-### list — 侵入式双向链表
-
-| 函数 / 宏 | 说明 |
-|-----------|------|
-| `elib_ft_list_init(list)` | 初始化 |
-| `elib_ft_list_empty(list)` | 判空 |
-| `elib_ft_list_count(list)` | 节点数 |
-| `elib_ft_list_push_front(list, node)` | 头部插入 |
-| `elib_ft_list_push_back(list, node)` | 尾部插入 |
-| `elib_ft_list_pop_front(list)` | 弹出首节点 |
-| `elib_ft_list_pop_back(list)` | 弹出尾节点 |
-| `elib_ft_list_remove(list, node)` | 移除节点 |
-| `elib_ft_list_insert_after(list, after, node)` | 在 after 后插入 |
-| `elib_ft_list_insert_before(list, before, node)` | 在 before 前插入 |
-| `ELIB_FT_LIST_ENTRY(node, type, member)` | 获取宿主结构体指针 |
-| `ELIB_FT_LIST_FOR_EACH(cursor, list)` | 遍历 |
-| `ELIB_FT_LIST_FOR_EACH_SAFE(cursor, tmp, list)` | 安全遍历 |
-
-### checksum — 校验算法
-
-> `init` 时指定 `xor_out`，`final` 自动完成异或，无需手动处理。
-
-| 函数 / 宏 | 说明 |
-|-----------|------|
-| `elib_ft_sum8_init/update/final` | 和校验（多帧） |
-| `elib_ft_sum8(data, len)` | 和校验（单次） |
-| `elib_ft_crc8_init/update/final` | CRC8（多帧） |
-| `elib_ft_crc8(data, len, poly, init, ref)` | CRC8（单次） |
-| `ELIB_FT_CRC8_CCITT_INIT(ctx)` | CRC8-CCITT 快捷初始化 |
-| `ELIB_FT_CRC8_MAXIM_INIT(ctx)` | CRC8-MAXIM 快捷初始化 |
-| `elib_ft_crc16_init/update/final` | CRC16（多帧） |
-| `elib_ft_crc16(data, len, poly, init, ref)` | CRC16（单次） |
-| `ELIB_FT_CRC16_XMODEM_INIT(ctx)` | CRC16-XMODEM 快捷初始化 |
-| `ELIB_FT_CRC16_CCITT_INIT(ctx)` | CRC16-CCITT 快捷初始化 |
-| `ELIB_FT_CRC16_MODBUS_INIT(ctx)` | CRC16-MODBUS 快捷初始化 |
-| `elib_ft_crc32_init/update/final` | CRC32（多帧） |
-| `elib_ft_crc32(data, len, poly, init, ref)` | CRC32（单次） |
-| `ELIB_FT_CRC32_ETHERNET_INIT(ctx)` | CRC32-Ethernet 快捷初始化 |
-| `elib_ft_hash_fnv1a32(data, len)` | FNV-1a 32 位哈希 |
-| `elib_ft_hash_fnv1a64(data, len)` | FNV-1a 64 位哈希 |
-
-### str — 字符串操作
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_strlen(s, max_len)` | 字符串长度（有界），内部委托 `strnlen` |
-| `elib_ft_strcmp(s1, s2)` | 字符串比较（NULL 安全），内部委托 `strcmp` |
-| `elib_ft_strncmp(s1, s2, n)` | 前 n 字符比较（NULL 安全），内部委托 `strncmp` |
-| `elib_ft_atoi32(s, max_len, endptr)` | 有符号整数解析，支持正负号 |
-| `elib_ft_atou32(s, max_len, endptr)` | 无符号整数解析 |
-| `elib_ft_atof(s, max_len, endptr)` | 浮点数解析（支持正负小数） |
-| `elib_ft_strarg_count(s, max_len)` | 空格分隔参数表计数 |
-| `elib_ft_strarg_get(s, max_len, idx, endptr)` | 获取指定索引参数的指针 |
-| `elib_ft_strcmp_fast(s1, s2, max_len)` | 快速字符串比较（FNV-1a 哈希预检） |
-
-### endian — 字节序转换
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_swap16(val)` | 交换 16 位高低字节 |
-| `elib_ft_swap32(val)` | 交换 32 位字节序 |
-| `elib_ft_hton16(val)` | 主机序转网络序（16 位） |
-| `elib_ft_ntoh16(val)` | 网络序转主机序（16 位） |
-| `elib_ft_hton32(val)` | 主机序转网络序（32 位） |
-| `elib_ft_ntoh32(val)` | 网络序转主机序（32 位） |
-
-### time — 日历时间与世纪秒转换
-
-> 默认 `uint64_t`（自动配对 `int64_t` 内部算术）。32 位平台可重定义 `ELIB_FT_EPOCH_T` 为 `uint32_t`（自动配对 `int32_t`，零 64 位运算，支持范围：1970-01-01 至 2106-02-07 06:28:15 UTC）。
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_time_to_epoch(t, epoch)` | 日历时间转 Unix 世纪秒 |
-| `elib_ft_epoch_to_time(epoch, t)` | Unix 世纪秒转日历时间 |
-| `elib_ft_time_wday(epoch)` | 从世纪秒获取星期几（0=周日...6=周六） |
-
-### qmath — Qm.n 定点数运算
-
-> 提供 Q16/UQ16/Q32/UQ32/Q64/UQ64 六套接口，每套包含快速版（无溢出检测）和安全版（返回错误码）。`n` 为小数位数，运行时传入。
-
-| 函数 | 说明 |
-|------|------|
-| `elib_ft_q32_from_double(val, n)` | double 转 Q32 |
-| `elib_ft_q32_to_double(q, n)` | Q32 转 double |
-| `elib_ft_q32_from_float(val, n)` | float 转 Q32 |
-| `elib_ft_q32_to_float(q, n)` | Q32 转 float |
-| `elib_ft_q32_add(a, b)` | Q32 加法（快速） |
-| `elib_ft_q32_sub(a, b)` | Q32 减法（快速） |
-| `elib_ft_q32_mul(a, b, n)` | Q32 乘法（快速） |
-| `elib_ft_q32_div(a, b, n)` | Q32 除法（快速） |
-| `elib_ft_q32_add_s(a, b, out)` | Q32 加法（安全） |
-| `elib_ft_q32_sub_s(a, b, out)` | Q32 减法（安全） |
-| `elib_ft_q32_mul_s(a, b, n, out)` | Q32 乘法（安全） |
-| `elib_ft_q32_div_s(a, b, n, out)` | Q32 除法（安全） |
-| `elib_ft_q32_convert(q, n_from, n_to)` | Q 格式转换 |
-| `elib_ft_q32_floor(q, n)` | 向下取整 |
-| `elib_ft_q32_ceil(q, n)` | 向上取整 |
-| `elib_ft_q32_round(q, n)` | 四舍五入 |
-| `elib_ft_q32_abs(q)` | 绝对值 |
-
-> Q16/UQ16/Q64/UQ64 接口对称，前缀替换即可。
-
-### 错误码
+## 错误码
 
 | 错误码 | 说明 |
 |--------|------|
 | `ELIB_FT_OK` | 成功 |
-| `ELIB_FT_ERR_INVALID_PARAM` | 无效参数 |
-| `ELIB_FT_ERR_NOT_INITIALIZED` | 未初始化 |
-| `ELIB_FT_ERR_EXCEED_MAX` | 超过 max_len |
-| `ELIB_FT_ERR_NO_SPACE` | 缓冲区空间不足 |
-| `ELIB_FT_ERR_NO_DATA` | 无数据可读 |
+| `ELIB_FT_ERR_INVALID_PARAM` | 无效参数（NULL、越界、跨列表节点、非法配置） |
+| `ELIB_FT_ERR_NOT_INITIALIZED` | 未初始化调用 |
+| `ELIB_FT_ERR_EXCEED_MAX` | 值或范围超上限（qmath 溢出 / time 年界 / 解析溢出） |
+| `ELIB_FT_ERR_NO_SPACE` | 目的无空间（ringbuf 满） |
+| `ELIB_FT_ERR_NO_DATA` | 无数据可取（空读 / 游离节点） |
+
+## v1 -> v2 迁移对照
+
+| v1 | v2 | 说明 |
+|----|----|------|
+| 11 个公共子头 + 6 个内部壳头 | 唯一 `elib_ft.h` | 子头删除，`.c` 直连伞头（`-Iinclude`，无相对路径） |
+| err 独立头 | 错误码并入伞头 | `elib_ft_err_t` 全库统一 |
+| 部分模块无初始化校验 | init 拒收矩阵 | ringbuf `size<2`、list NULL、checksum `init=NULL`、time 全字段、qmath `n` 全域 |
+| init 不清 ctx | init memset ctx | ctx 全量不变量 |
+| `list` push/insert/remove 返 void | 返 `elib_ft_err_t` | 节点带 `owner`：**跨列表/重复插入拒收**；缓存 `tail` 使 `push_back`/`pop_back` O(1)；`remove` 游离节点返 `NO_DATA` |
+| `checksum` ctx 无守门 | initialized 守门 | `update` 未初始化返 `NOT_INITIALIZED`；`final` 自动 `xor_out` |
+| `atoi32`/`atou32` 基于 `strtol` | 手工解析 | 不依赖 long 位宽差异；**溢出返 0 且 `*endptr=NULL`**（哨兵） |
+| `strcmp_fast` 契约未钉死 | 契约文档化 | 长度序 -> FNV-1a 哈希序 -> memcmp 兜底 |
+| time 64 位中间量依赖 | 双配置管线 | `uint32` 配置纯 32 位安全管线（精确到 2106-02-07 06:28:15）；`uint64` 配置年上限 65535 |
+| `civil_from_days` 公式符号错 | 修复 | yoe 符号 + era 负端调整（Hinnant 原版） |
+| `q64` 无 `__int128` fallback 乘除错值 | 128 位 fallback 重写 | umul/udiv/scale 全量重写，与 `__int128` 路径逐位一致 |
+| `from_double` 越界 UB 强转 | 饱和换算 | 钳制到类型极值（含 2^63 / 2^64 双精度上界） |
+| fast 变体不校验 `n` | 定义化 fallback | 非法 `n`：mul/div/from_double 返 0；convert/floor/ceil/round 原 q 返回；**不发 UB** |
+| `_s` 返回 `int` | 返回 `elib_ft_err_t` | 输出统一走指针 |
+
+## 测试与验证
+
+`test/` 下 11 件套（每模块一个，独立 `main`，`-std=c99 -Wall -Wextra -Werror` 编译关卡）。无宿主编译器的环境下行为验证用 Python 大整数参考实现逐点交叉验证（`scripts` 范式：位精确 C 模型 vs 原生大整数算术，覆盖 128 位乘除 fallback、饱和边界、日历公式、FNV/CRC 标准向量）。
 
 ## 目录结构
 
 ```
 elib-functiontool/
 ├── include/
-│   ├── elib_ft.h                  # 伞形头文件
-│   ├── elib_ft_util.h             # 快捷宏
-│   ├── elib_ft_err.h              # 错误码
-│   ├── elib_ft_mem.h              # 内存操作 + 位图操作
-│   ├── elib_ft_ringbuf.h          # 环形缓冲区
-│   ├── elib_ft_list.h             # 侵入式链表
-│   ├── elib_ft_checksum.h         # 校验算法
-│   ├── elib_ft_str.h              # 字符串操作
-│   ├── elib_ft_endian.h            # 字节序转换
-│   └── elib_ft_time.h              # 日历时间
-│   ├── elib_ft_qmath.h            # Qm.n 定点数运算
+│   └── elib_ft.h                 # 唯一公共头（错误码 + 十模块 API）
 ├── src/
-│   ├── elib_ft_mem_core.c            # mem 实现
-│   ├── elib_ft_bitmap_core.c         # bitmap 实现
-│   ├── elib_ft_ringbuf_core.c     # ringbuf 实现
-│   ├── elib_ft_list_core.c        # list 实现
-│   ├── elib_ft_checksum_core.c    # checksum 实现
-│   ├── elib_ft_str_core.c         # str 实现
-│   ├── elib_ft_endian_core.c       # endian 实现
-│   ├── elib_ft_time_core.c         # time 实现
-│   ├── elib_ft_qmath_core.c        # qmath 实现
+│   ├── elib_ft_mem_core.c        # 有界 memcpy/memset
+│   ├── elib_ft_bitmap_core.c     # 位图（置/清/移位/查找，尾位安全）
+│   ├── elib_ft_ringbuf_core.c    # cell 环形缓冲区（initialized 守门）
+│   ├── elib_ft_list_core.c       # 侵入式双向链表（owner + O(1) tail）
+│   ├── elib_ft_checksum_core.c   # Sum8/CRC8/CRC16/CRC32/FNV-1a
+│   ├── elib_ft_str_core.c        # 有界字符串 + 手工解析
+│   ├── elib_ft_endian_core.c     # 字节交换 / 网络序
+│   ├── elib_ft_time_core.c       # 日历 <-> 世纪秒（双配置）
+│   └── elib_ft_qmath_core.c      # Qm.n 六族（含 128 位 fallback）
 ├── test/
-│   └── test_elib_ft.c             # 单元测试
+│   ├── test_elib_ft_err.c
+│   ├── test_elib_ft_util.c
+│   ├── test_elib_ft_mem.c
+│   ├── test_elib_ft_bitmap.c
+│   ├── test_elib_ft_ringbuf.c
+│   ├── test_elib_ft_list.c
+│   ├── test_elib_ft_checksum.c
+│   ├── test_elib_ft_str.c
+│   ├── test_elib_ft_endian.c
+│   ├── test_elib_ft_time.c
+│   └── test_elib_ft_qmath.c
 ├── docs/
-│   ├── usage_util.md               # util 用法
-│   ├── usage_mem.md               # mem 用法
-│   ├── usage_bitmap.md            # bitmap 用法
-│   ├── usage_ringbuf.md           # ringbuf 用法
-│   ├── usage_list.md              # list 用法
-│   ├── usage_checksum.md         # checksum 用法
-│   ├── usage_str.md              # str 用法
-│   ├── usage_endian.md           # endian 用法
-│   └── usage_time.md            # time 用法
-│   ├── usage_qmath.md            # qmath 用法
-├── scripts/
+│   └── usage_*.md                # 十篇模块用法
 ├── LICENSE
 └── README.md
 ```
 
-## 构建与测试
+## 构建
+
+无构建系统，单一编译命令（arm-none-eabi-gcc 或任意 C99 编译器）：
 
 ```bash
-gcc -std=c99 -Wall -Wextra -Iinclude -o test_elib_ft test/test_elib_ft.c \
-  src/elib_ft_mem_core.c src/elib_ft_bitmap_core.c src/elib_ft_ringbuf_core.c \
-  src/elib_ft_list_core.c src/elib_ft_checksum_core.c src/elib_ft_str_core.c \
-  src/elib_ft_endian_core.c src/elib_ft_time_core.c src/elib_ft_qmath_core.c && ./test_elib_ft
+arm-none-eabi-gcc -std=c99 -Wall -Wextra -Werror -Iinclude -c src/*.c
 ```
+
+编译单元各自直连 `elib_ft.h`（`-Iinclude`，无相对路径插入），多文件工程按任意组合链接 `.o` 即可。`test/` 同样以 `-Iinclude` 逐文件编译。
 
 ## 许可证
 

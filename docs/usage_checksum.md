@@ -1,12 +1,19 @@
 # checksum 模块用法
 
-头文件：`elib_ft_checksum.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 校验算法支持多帧计算：`init` → `update`(可多次) → `final`，也提供一次性计算函数。
 
 > `final` 自动对结果执行 `crc ^ xor_out`，`xor_out` 在 `init` 时指定。无需手动异或。
 
 ---
+
+## v2 变化（2.0.0）
+
+- 流式 ctx 全部带 initialized 守门：`update` 在未 init（或零清）的 ctx 上返 `ELIB_FT_ERR_NOT_INITIALIZED`，不再静默计算
+- `init` 改为返回 `elib_ft_err_t`（`memset` 清零 ctx 后填配置；NULL ctx 拒收）
+- `final` 的 ctx 保持状态直到下次 init；未初始化返哨兵 0（真实数据校验和可为 0，用已知帧对比消歧）
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_checksum.h` 删除）
 
 ## Sum8 — 和校验
 

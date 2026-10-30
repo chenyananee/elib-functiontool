@@ -2,10 +2,16 @@
 
 字符串操作模块，提供安全的有界字符串处理函数，适用于嵌入式环境。比较类函数内部委托标准库，`NULL` 安全由库保证。
 
+## v2 变化（2.0.0）
+
+- `atoi32` / `atou32` 改为手工解析（不再依赖 `strtol` 的 long 位宽差异），**溢出返回 0 且 `*endptr = NULL`**（哨兵约定：成功解析必然 endptr 非 NULL）
+- `strcmp_fast` 契约钉死：长度异序 -> 按长度排序；同长则 FNV-1a 哈希排序（多数不等串 O(1) 拒绝）；哈希碰撞时 memcmp 兜底确认（碰撞组内按 memcmp 序）
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_str.h` 删除）
+
 ## strlen — 有界字符串长度
 
 ```c
-#include "elib_ft_str.h"
+#include "elib_ft.h"
 
 uint32_t len = elib_ft_strlen("hello", 10);  /* 5 */
 len = elib_ft_strlen("hello", 3);            /* 3，超出部分截断 */

@@ -1,10 +1,16 @@
 # ringbuf 模块用法
 
-头文件：`elib_ft_ringbuf.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 基于 cell 的环形缓冲区，零动态分配，支持 `max_len` 安全限制。
 
 ---
+
+## v2 变化（2.0.0）
+
+- init 拒收 `size < 2`（full/empty 至少需要一个空闲槽区分），连同 NULL ctx/buf、`cell_size == 0` 一并 init 一次拒收
+- init `memset` 清零 ctx 后填配置
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_ringbuf.h` 删除）
 
 ## 初始化
 

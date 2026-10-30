@@ -1,10 +1,15 @@
 # bitmap 模块用法
 
-头文件：`elib_ft_mem.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 位图基于用户提供的 `uint8_t` 数组，无需初始化，通过 `max_bits` 约束有效位范围。
 
 ---
+
+## v2 变化（2.0.0）
+
+- 头文件统一为伞头 `elib_ft.h`（v1 挂在 `elib_ft_mem.h` 下，v2 起并入伞头）
+- 末字节超出 `max_bits` 的位在 set_all / shift 双向移位 / find_first_clear 后保持清零（尾位安全不变量）
 
 ## 置位 / 清位 / 取值
 

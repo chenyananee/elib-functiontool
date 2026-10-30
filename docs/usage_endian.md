@@ -2,10 +2,14 @@
 
 字节序转换模块，提供 16 位和 32 位整数的字节交换和网络序/主机序转换，适用于网络通信和跨平台数据交换。
 
+## v2 变化（2.0.0）
+
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_endian.h` 删除；大端目标下 `hton/ntoh` 恒等直通）
+
 ## swap — 字节交换
 
 ```c
-#include "elib_ft_endian.h"
+#include "elib_ft.h"
 
 uint16_t hi = elib_ft_swap16(0x1234);  /* 0x3412 */
 uint32_t hi32 = elib_ft_swap32(0x12345678);  /* 0x78563412 */

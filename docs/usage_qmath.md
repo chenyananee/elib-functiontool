@@ -1,10 +1,18 @@
 # qmath 模块用法
 
-头文件：`elib_ft_qmath.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 Qm.n 定点数运算换算库，支持 16/32/64 位宽、有符号/无符号共六套接口。
 
 ---
+
+## v2 变化（2.0.0）
+
+- 全部 `_s` 安全变体改返回 `elib_ft_err_t`（结果走指针输出）
+- fast 变体补 `n` 域校验（定义化 fallback）：mul / div / from_double 非法 `n` 返 0；convert / floor / ceil / round 原 q 原样返回——非法参数不发 UB
+- `from_double` 饱和换算：超界钳制到类型极值（64 位族以 2^63 / 2^64 精确幂为双精度上界），无越界强转 UB
+- `q64` / `uq64` 无 `__int128` 平台的 128 位 fallback 重写（umul64_128 / udiv128_64 / scale128），与 `__int128` 路径**逐位一致**（负数积同样 floor 语义）
+- `uq64_div_s` 域外定义化：商 >= 2^64 返 `ELIB_FT_ERR_EXCEED_MAX`；fast 版 `uq64_div` 宽域下取低 64 位（文档化 fallback）
 
 ## 基本概念
 

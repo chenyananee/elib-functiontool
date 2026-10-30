@@ -1,10 +1,19 @@
 # list 模块用法
 
-头文件：`elib_ft_list.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 侵入式双向链表，零额外内存开销，节点嵌入用户结构体中。
 
 ---
+
+## v2 变化（2.0.0）
+
+- 节点带 `owner` 归属标记：插入要求节点游离（`node->owner == NULL`），**跨列表重复插入/移除直接拒收**，不再造成链表串联
+- `push_front` / `push_back` / `insert_after` / `insert_before` / `remove` 改为返回 `elib_ft_err_t`（示例中的语句调用形态不变）
+- 链表缓存 `tail` 指针：`push_back` / `pop_back` O(1)，不再 O(n) 遍历
+- `remove` 语义：游离节点返 `ELIB_FT_ERR_NO_DATA`，属于其他链表返 `ELIB_FT_ERR_INVALID_PARAM`
+- init `memset` 清零 ctx；`elib_ft_list_node_t` 新增 `owner` 字段（**内存布局变更**）
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_list.h` 删除）
 
 ## 基本概念
 

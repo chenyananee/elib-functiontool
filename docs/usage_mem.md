@@ -1,8 +1,12 @@
 # mem 模块用法
 
-头文件：`elib_ft_mem.h`（通过 `elib_ft.h` 自动引入）
+头文件：`elib_ft.h`
 
 ---
+
+## v2 变化（2.0.0）
+
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_mem.h` 删除；bitmap 一并并入伞头）
 
 ## elib_ft_memcpy
 

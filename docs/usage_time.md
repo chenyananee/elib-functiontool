@@ -2,6 +2,13 @@
 
 日历时间与 Unix 世纪秒（自 1970-01-01 00:00:00 UTC 起的秒数）相互转换，零动态分配，无 OS 依赖。
 
+## v2 变化（2.0.0）
+
+- `uint32_t` 配置：纯 32 位安全管线，精确窗口 `1970-01-01 00:00:00 ~ 2106-02-07 06:28:15`，越界（含 `d*86400` 回绕检测）返 `ELIB_FT_ERR_EXCEED_MAX`
+- `uint64_t` 配置：底层 int64 算术，日历年上限 65535，超出返 `ELIB_FT_ERR_EXCEED_MAX`
+- 早于 1970 拒收（`ELIB_FT_ERR_INVALID_PARAM`）；月内天数校验含完整闰年规则；`year=2106` 以下精确边界逐秒钉死
+- `wday` 以 1970-01-01 周四为锚点
+
 ## epoch 类型配置
 
 `ELIB_FT_EPOCH_T` 控制 epoch 秒类型，`elib_ft_epoch_signed_t` 自动配对有符号类型用于内部算术：
@@ -15,13 +22,13 @@
 
 ```c
 #define ELIB_FT_EPOCH_T uint32_t
-#include "elib_ft_time.h"
+#include "elib_ft.h"
 ```
 
 ## Calendar time structure
 
 ```c
-#include "elib_ft_time.h"
+#include "elib_ft.h"
 
 elib_ft_time_t t = {
     .year   = 2025,

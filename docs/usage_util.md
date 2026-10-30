@@ -2,6 +2,11 @@
 
 通用快捷宏集合，零动态分配，纯宏实现，无 OS 依赖。
 
+## v2 变化（2.0.0）
+
+- 唯一公共头 `elib_ft.h`（原 `elib_ft_util.h` 删除；`elib_ft_err_t` 错误码同并入伞头）
+- 编译器兼容宏更名为 `ELIB_FT_WEAK` / `ELIB_FT_UNUSED`（IAR / armcc / GCC / MSVC）
+
 ## MIN / MAX — 大小比较
 
 ```c
