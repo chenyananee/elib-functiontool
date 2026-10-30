@@ -1,6 +1,6 @@
 /* elib_ft_endian_core.c - FunctionTool Endianness Operations */
 
-#include "elib_ft_endian.h"
+#include "elib_ft.h"
 
 /* ------------------------------------------------------------------ */
 /*  Byte swap                                                           */

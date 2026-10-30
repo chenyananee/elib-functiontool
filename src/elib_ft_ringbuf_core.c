@@ -1,14 +1,15 @@
 /* elib_ft_ringbuf_core.c - FunctionTool RingBuf Core Implementation */
 
-#include "elib_ft_ringbuf_core.h"
+#include "elib_ft.h"
 #include <string.h>
 
 elib_ft_err_t elib_ft_ringbuf_init(elib_ft_ringbuf_ctx_t *ctx, uint8_t *buf, uint32_t size, uint32_t cell_size)
 {
-    if (ctx == NULL || buf == NULL || size == 0 || cell_size == 0) {
+    if (ctx == NULL || buf == NULL || size < 2 || cell_size == 0) {
         return ELIB_FT_ERR_INVALID_PARAM;
     }
 
+    memset(ctx, 0, sizeof(*ctx));
     ctx->buf = buf;
     ctx->size = size;
     ctx->cell_size = cell_size;

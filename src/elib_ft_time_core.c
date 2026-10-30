@@ -1,8 +1,7 @@
 /* elib_ft_time_core.c - FunctionTool Time and Calendar Implementation */
 /* ELIB_FT_EPOCH_T controls output type, elib_ft_epoch_signed_t for internal arithmetic. */
 
-#include "elib_ft_time.h"
-#include "../include/elib_ft_err.h"
+#include "elib_ft.h"
 
 typedef elib_ft_epoch_signed_t ies; /* internal epoch signed type */
 
@@ -41,10 +40,12 @@ static ies days_from_epoch(ies year, ies month, ies day)
 static void civil_from_days(ies days, ies *year, ies *month, ies *day)
 {
     ies z = days + 719468;
-    ies era = z / 146097;
-    if (z < 0) era -= 1;
+    /* floor(z / 146097): the z - 146096 adjustment makes truncating
+     * C division act as floor division for every negative z, exact
+     * multiples included */
+    ies era = (z >= 0) ? (z / 146097) : ((z - 146096) / 146097);
     ies doe = z - era * 146097;
-    ies yoe = (doe - doe / 1460 - doe / 36524 + doe / 146096) / 365;
+    ies yoe = (doe - doe / 1460 + doe / 36524 - doe / 146096) / 365;
     ies y = yoe + era * 400;
     ies doy = doe - (365 * yoe + yoe / 4 - yoe / 100);
     ies mp = (5 * doy + 2) / 153;
@@ -57,7 +58,7 @@ static void civil_from_days(ies days, ies *year, ies *month, ies *day)
 /*  Public API                                                          */
 /* ------------------------------------------------------------------ */
 
-int elib_ft_time_to_epoch(const elib_ft_time_t *t, ELIB_FT_EPOCH_T *epoch)
+elib_ft_err_t elib_ft_time_to_epoch(const elib_ft_time_t *t, ELIB_FT_EPOCH_T *epoch)
 {
     if (t == NULL || epoch == NULL) {
         return ELIB_FT_ERR_INVALID_PARAM;
@@ -75,12 +76,43 @@ int elib_ft_time_to_epoch(const elib_ft_time_t *t, ELIB_FT_EPOCH_T *epoch)
         return ELIB_FT_ERR_INVALID_PARAM;
     }
 
+#if UINT32_MAX == (ELIB_FT_EPOCH_T)-1
+    /* uint32 epoch config: 2106-02-07 06:28:15 UTC is the last valid
+     * second. Year-level gate first, then precise wrap detection so
+     * the seconds sum never relies on 64-bit arithmetic. */
+    if (t->year > 2106) {
+        return ELIB_FT_ERR_EXCEED_MAX;
+    }
+#endif
+
     ies d = days_from_epoch(t->year, t->month, t->day);
-    *epoch = (ELIB_FT_EPOCH_T)(d * 86400) + (ELIB_FT_EPOCH_T)(t->hour * 3600u + t->minute * 60u + t->second);
+    uint32_t hms = (uint32_t)t->hour * 3600u + (uint32_t)t->minute * 60u + (uint32_t)t->second;
+
+    *epoch = 0;
+#if UINT32_MAX == (ELIB_FT_EPOCH_T)-1
+    {
+        uint32_t s = (uint32_t)d;
+        s *= 86400u;                        /* unsigned wrap is defined */
+        if (s / 86400u != (uint32_t)d) {    /* days*86400 wrapped */
+            return ELIB_FT_ERR_EXCEED_MAX;
+        }
+        if (s + hms < s) {                  /* seconds part wrapped */
+            return ELIB_FT_ERR_EXCEED_MAX;
+        }
+        s += hms;
+        *epoch = s;
+    }
+#else
+    {
+        ies sec = d * 86400 + (ies)hms;     /* int64: year cap 5883516 keeps this safe */
+        *epoch = (ELIB_FT_EPOCH_T)sec;
+    }
+#endif
+
     return ELIB_FT_OK;
 }
 
-int elib_ft_epoch_to_time(ELIB_FT_EPOCH_T epoch, elib_ft_time_t *t)
+elib_ft_err_t elib_ft_epoch_to_time(ELIB_FT_EPOCH_T epoch, elib_ft_time_t *t)
 {
     if (t == NULL) {
         return ELIB_FT_ERR_INVALID_PARAM;
@@ -94,6 +126,9 @@ int elib_ft_epoch_to_time(ELIB_FT_EPOCH_T epoch, elib_ft_time_t *t)
 
     if (year < 1970) {
         return ELIB_FT_ERR_INVALID_PARAM;
+    }
+    if (year > 65535) {
+        return ELIB_FT_ERR_EXCEED_MAX;      /* calendar year cap of elib_ft_time_t.year */
     }
 
     t->year   = (uint16_t)year;

@@ -1,6 +1,6 @@
 /* elib_ft_bitmap_core.c - FunctionTool Bitmap Implementation */
 
-#include "elib_ft_bitmap_core.h"
+#include "elib_ft.h"
 #include <string.h>
 
 /* ------------------------------------------------------------------ */
@@ -93,7 +93,7 @@ void elib_ft_bitmap_shift_left(uint8_t *buf, uint32_t max_bits, uint32_t n)
         uint8_t carry = 0;
         for (uint32_t i = 0; i < total_bytes; i++) {
             uint8_t new_carry = (uint8_t)(buf[i] >> (8 - bit_shift));
-            buf[i] = (uint8_t)(buf[i] << bit_shift) | carry;
+            buf[i] = (uint8_t)((uint8_t)(buf[i] << bit_shift) | carry);
             carry = new_carry;
         }
     }
@@ -131,7 +131,7 @@ void elib_ft_bitmap_shift_right(uint8_t *buf, uint32_t max_bits, uint32_t n)
         uint32_t i = total_bytes;
         while (i-- > 0) {
             uint8_t new_carry = (uint8_t)(buf[i] << (8 - bit_shift));
-            buf[i] = (buf[i] >> bit_shift) | carry;
+            buf[i] = (uint8_t)((buf[i] >> bit_shift) | carry);
             carry = new_carry;
         }
     }
@@ -181,7 +181,7 @@ uint32_t elib_ft_bitmap_find_first_set(const uint8_t *buf, uint32_t max_bits, ui
         first_mask &= tail_mask(max_bits);
     }
 
-    uint8_t first = buf[byte_idx] & first_mask;
+    uint8_t first = (uint8_t)(buf[byte_idx] & first_mask);
     if (first != 0) {
         return byte_idx * 8 + ctz8(first);
     }
@@ -213,7 +213,7 @@ uint32_t elib_ft_bitmap_find_first_clear(const uint8_t *buf, uint32_t max_bits, 
         first_mask &= tail_mask(max_bits);
     }
 
-    uint8_t first = ~buf[byte_idx] & first_mask;
+    uint8_t first = (uint8_t)(~buf[byte_idx] & first_mask);
     if (first != 0) {
         return byte_idx * 8 + ctz8(first);
     }
@@ -222,9 +222,9 @@ uint32_t elib_ft_bitmap_find_first_clear(const uint8_t *buf, uint32_t max_bits, 
     for (byte_idx++; byte_idx < total_bytes; byte_idx++) {
         uint8_t inv;
         if (byte_idx == total_bytes - 1) {
-            inv = ~buf[byte_idx] & tail_mask(max_bits);
+            inv = (uint8_t)(~buf[byte_idx] & tail_mask(max_bits));
         } else {
-            inv = ~buf[byte_idx];
+            inv = (uint8_t)~buf[byte_idx];
         }
         if (inv != 0) {
             return byte_idx * 8 + ctz8(inv);
